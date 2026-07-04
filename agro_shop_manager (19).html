@@ -1,0 +1,3654 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#0F6E56">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lanka Stores">
+<link rel="manifest" id="pwa-manifest">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230F6E56'/><text y='.9em' font-size='80' x='10'>🌿</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lanka Stores - Management System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Brand — deep forest green with warm earth accent */
+  --g900: #0C3D28;
+  --g800: #0F6E56;  /* primary */
+  --g700: #1A9070;
+  --g600: #22B589;
+  --g200: #C8EDE2;
+  --g100: #E8F7F2;
+  --g50:  #F2FAF7;
+
+  --e700: #B45309;  /* earth/amber */
+  --e500: #D97706;
+  --e200: #FDE68A;
+  --e100: #FEF3C7;
+
+  --r600: #DC2626;
+  --r100: #FEE2E2;
+  --b600: #2563EB;
+  --b100: #DBEAFE;
+  --p600: #7C3AED;
+  --p100: #EDE9FE;
+
+  /* Neutrals */
+  --n900: #0F1714;
+  --n700: #2D4039;
+  --n500: #5C7269;
+  --n300: #A8BDB7;
+  --n200: #D4E0DC;
+  --n100: #EEF4F2;
+  --n50:  #F7FAF9;
+  --white: #FFFFFF;
+
+  /* Semantic */
+  --bg:      #F0F4F2;
+  --surface: #FFFFFF;
+  --border:  #E0EAE6;
+  --text:    #0F1714;
+  --text-2:  #2D4039;
+  --muted:   #6B8880;
+
+  /* Type */
+  --sans: 'Inter', 'Noto Sans Sinhala', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Radii */
+  --r2: 4px; --r4: 6px; --r6: 8px; --r8: 10px; --r10: 12px; --r16: 16px; --r-full: 9999px;
+
+  /* Shadows */
+  --sh1: 0 1px 2px rgba(15,55,40,0.06);
+  --sh2: 0 2px 8px rgba(15,55,40,0.08), 0 1px 3px rgba(15,55,40,0.04);
+  --sh3: 0 8px 24px rgba(15,55,40,0.10), 0 2px 8px rgba(15,55,40,0.06);
+  --sh4: 0 24px 64px rgba(15,55,40,0.14), 0 8px 20px rgba(15,55,40,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.shell { display: flex; height: 100vh; overflow: hidden; }
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+.sidebar {
+  width: 240px;
+  background: var(--g900);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255,255,255,0.04);
+}
+
+.sidebar-brand {
+  padding: 22px 16px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.brand-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+
+.brand-icon {
+  width: 38px; height: 38px;
+  background: var(--g700);
+  border-radius: var(--r6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.brand-name { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: -0.4px; }
+.brand-sub { color: rgba(255,255,255,0.38); font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; }
+
+#fb-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: rgba(255,255,255,0.45);
+  margin-bottom: 10px;
+}
+#fb-dot { width: 7px; height: 7px; border-radius: 50%; background: #555; flex-shrink: 0; transition: background 0.3s; }
+
+.sidebar-btn {
+  width: 100%; padding: 7px 10px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--r4);
+  color: rgba(255,255,255,0.7);
+  font-size: 11px; font-family: var(--sans);
+  cursor: pointer; margin-bottom: 4px;
+  transition: all 0.15s;
+}
+.sidebar-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+.nav-list { flex: 1; padding: 10px 10px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+.nav-section {
+  padding: 12px 8px 4px;
+  color: rgba(255,255,255,0.28);
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 1.2px; text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--r6);
+  cursor: pointer;
+  color: rgba(255,255,255,0.62);
+  font-size: 13px; font-weight: 500;
+  margin-bottom: 1px;
+  transition: all 0.12s;
+  position: relative;
+}
+.nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+.nav-item.active {
+  background: var(--g700);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(34,181,137,0.25);
+}
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.85; }
+.nav-item.active svg { opacity: 1; }
+
+/* ═══════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════ */
+.main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; background: var(--bg); }
+
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; position: sticky; top: 0; z-index: 10;
+  box-shadow: var(--sh1);
+}
+.topbar h2 { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--r6);
+  font-size: 13px; font-family: var(--sans);
+  font-weight: 500; cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s; line-height: 1;
+  white-space: nowrap;
+}
+.btn svg { width: 15px; height: 15px; }
+
+.btn-primary {
+  background: var(--g800); color: #fff;
+  box-shadow: 0 1px 3px rgba(15,110,86,0.3);
+}
+.btn-primary:hover { background: var(--g700); box-shadow: 0 3px 10px rgba(15,110,86,0.35); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-outline { background: var(--white); border-color: var(--border); color: var(--text-2); }
+.btn-outline:hover { background: var(--n50); border-color: var(--n300); }
+
+.btn-danger { background: var(--r100); color: var(--r600); border-color: #fca5a5; }
+.btn-danger:hover { background: #fecaca; }
+
+.btn-wa { background: #25D366; color: #fff; }
+.btn-wa:hover { background: #1fb856; }
+
+.btn-pdf { background: var(--r100); color: var(--r600); border-color: #fca5a5; }
+.btn-amber { background: var(--e100); color: var(--e700); border-color: #fcd34d; }
+
+.btn-sm { padding: 5px 10px; font-size: 12px; border-radius: var(--r4); }
+.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: var(--r2); }
+
+/* ═══════════════════════════════════════════
+   CONTENT
+═══════════════════════════════════════════ */
+.content { padding: 24px 28px; flex: 1; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ═══════════════════════════════════════════
+   STAT CARDS
+═══════════════════════════════════════════ */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+.stat-grid-6 { display: grid; grid-template-columns: repeat(6,1fr); gap: 12px; margin-bottom: 22px; }
+
+.stat-card {
+  background: var(--white);
+  border-radius: var(--r10);
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--sh1);
+  position: relative; overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.stat-card:hover { box-shadow: var(--sh2); transform: translateY(-1px); }
+
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: var(--r10) var(--r10) 0 0;
+}
+.stat-card.green::before { background: linear-gradient(90deg, var(--g700), var(--g600)); }
+.stat-card.amber::before { background: linear-gradient(90deg, var(--e700), var(--e500)); }
+.stat-card.red::before   { background: linear-gradient(90deg, var(--r600), #ef4444); }
+.stat-card.blue::before  { background: linear-gradient(90deg, var(--b600), #3b82f6); }
+.stat-card.purple::before { background: linear-gradient(90deg, var(--p600), #8b5cf6); }
+
+.stat-card .lbl {
+  font-size: 11px; font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.7px;
+  margin-bottom: 6px;
+}
+.stat-card .val {
+  font-size: 26px; font-weight: 800;
+  font-family: var(--mono); letter-spacing: -1px;
+  line-height: 1;
+}
+.stat-card .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.stat-card.green .val { color: var(--g800); }
+.stat-card.amber .val { color: var(--e700); }
+.stat-card.red .val   { color: var(--r600); }
+.stat-card.blue .val  { color: var(--b600); }
+.stat-card.purple .val { color: var(--p600); }
+
+/* ═══════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════ */
+.card {
+  background: var(--white);
+  border-radius: var(--r10);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: var(--sh1);
+}
+
+.card-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+  background: var(--n50);
+}
+.card-header h3 {
+  font-size: 13px; font-weight: 700;
+  color: var(--text-2); letter-spacing: -0.2px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.card-header-actions { display: flex; gap: 6px; align-items: center; }
+
+/* ═══════════════════════════════════════════
+   TABLES
+═══════════════════════════════════════════ */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  background: var(--n50);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10.5px; font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--n100);
+  font-size: 13px; vertical-align: middle;
+  color: var(--text);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.1s; }
+tbody tr:hover td { background: var(--g50); }
+
+/* ═══════════════════════════════════════════
+   BADGES
+═══════════════════════════════════════════ */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 9px; border-radius: var(--r-full);
+  font-size: 11px; font-weight: 600;
+  line-height: 1.6; white-space: nowrap;
+}
+.badge-green  { background: var(--g100);  color: var(--g800); }
+.badge-amber  { background: var(--e100);  color: var(--e700); }
+.badge-red    { background: var(--r100);  color: var(--r600); }
+.badge-blue   { background: var(--b100);  color: var(--b600); }
+.badge-purple { background: var(--p100);  color: var(--p600); }
+.badge-return { background: var(--p100);  color: var(--p600); }
+
+/* ═══════════════════════════════════════════
+   FORMS
+═══════════════════════════════════════════ */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1/-1; }
+.form-group label {
+  font-size: 11.5px; font-weight: 600;
+  color: var(--text-2); letter-spacing: 0.2px;
+}
+.form-group input, .form-group select, .form-group textarea {
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r6);
+  font-size: 13px; font-family: var(--sans);
+  color: var(--text); background: var(--white);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  border-color: var(--g700);
+  box-shadow: 0 0 0 3px rgba(34,181,137,0.12);
+}
+.form-group input::placeholder { color: var(--n300); }
+.form-group select { cursor: pointer; }
+
+/* Search bar */
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--n100); border-radius: var(--r6);
+  padding: 7px 12px; border: 1px solid var(--border);
+}
+.search-bar input {
+  border: none; background: none; outline: none;
+  font-family: var(--sans); font-size: 13px; color: var(--text); width: 200px;
+}
+
+/* ═══════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(9,30,22,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 100; display: none;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--white);
+  border-radius: var(--r16);
+  width: 520px; max-width: min(520px,96vw);
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--sh4);
+  border: 1px solid var(--border);
+}
+.modal-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--n50);
+}
+.modal-header h3 {
+  font-size: 15px; font-weight: 700;
+  color: var(--text); letter-spacing: -0.3px;
+}
+.modal-close {
+  background: var(--n100); border: none;
+  width: 28px; height: 28px; border-radius: var(--r-full);
+  cursor: pointer; color: var(--muted);
+  font-size: 16px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.modal-close:hover { background: var(--r100); color: var(--r600); }
+.modal-body { padding: 20px 22px; }
+.modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 8px;
+  background: var(--n50);
+}
+
+/* ═══════════════════════════════════════════
+   BILL ROWS
+═══════════════════════════════════════════ */
+.bill-row {
+  display: grid;
+  grid-template-columns: minmax(160px,2fr) 70px 80px 80px 80px 60px 85px 28px;
+  min-width: 680px;
+  gap: 5px; align-items: start;
+  margin-bottom: 8px;
+  background: var(--n50);
+  padding: 8px; border-radius: var(--r6);
+  border: 1px solid var(--border);
+}
+.bill-row input, .bill-row select {
+  padding: 6px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r4);
+  font-size: 12px; font-family: var(--sans);
+  background: var(--white); width: 100%;
+  transition: border-color 0.15s;
+}
+.bill-row input:focus, .bill-row select:focus {
+  border-color: var(--g700); outline: none;
+}
+.bill-row-hdr {
+  display: grid;
+  grid-template-columns: minmax(160px,2fr) 70px 80px 80px 80px 60px 85px 28px;
+  min-width: 680px;
+  gap: 5px; margin-bottom: 5px; padding: 0 8px;
+}
+.bill-hdr-lbl { font-size: 10px; font-weight: 700; color: var(--muted); text-align: center; letter-spacing: 0.5px; }
+
+.bill-total-box {
+  background: var(--g50); border: 1px solid var(--g200);
+  border-radius: var(--r8); padding: 14px 16px; margin-top: 12px;
+}
+.bill-tr { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.bill-tr.disc { color: var(--r600); }
+.bill-tr.final {
+  font-size: 18px; font-weight: 800; color: var(--g800);
+  margin-top: 8px; border-top: 1px solid var(--g200);
+  padding-top: 9px; font-family: var(--mono);
+}
+
+/* ═══════════════════════════════════════════
+   CHARTS
+═══════════════════════════════════════════ */
+.cbar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.cbar-lbl { width: 110px; font-size: 12px; color: var(--muted); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cbar-track { flex: 1; height: 22px; background: var(--n100); border-radius: var(--r4); overflow: hidden; }
+.cbar-fill {
+  height: 100%; border-radius: var(--r4);
+  display: flex; align-items: center; padding-left: 8px;
+  font-size: 11px; font-weight: 600; color: #fff;
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.cbar-val { width: 80px; font-size: 11.5px; font-family: var(--mono); color: var(--muted); }
+
+/* ═══════════════════════════════════════════
+   PRICE STACK
+═══════════════════════════════════════════ */
+.ps { display: flex; flex-direction: column; gap: 3px; }
+.pt { display: flex; align-items: center; gap: 5px; font-size: 11.5px; }
+.pt .ptl {
+  padding: 1px 6px; border-radius: var(--r2);
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.pt.cost .ptl { background: var(--e100); color: var(--e700); }
+.pt.sell .ptl { background: var(--g100); color: var(--g800); }
+.pt.labp .ptl { background: var(--b100); color: var(--b600); }
+
+/* ═══════════════════════════════════════════
+   PROFIT COLORS
+═══════════════════════════════════════════ */
+.pl-positive { color: var(--g800); font-weight: 700; }
+.pl-negative { color: var(--r600); font-weight: 700; }
+
+/* ═══════════════════════════════════════════
+   DATE FILTER
+═══════════════════════════════════════════ */
+.date-filter { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.date-filter input, .date-filter select {
+  padding: 6px 10px; border: 1.5px solid var(--border);
+  border-radius: var(--r6); font-size: 12px;
+  font-family: var(--sans); background: var(--white); outline: none;
+  transition: border-color 0.15s;
+}
+.date-filter input:focus, .date-filter select:focus { border-color: var(--g700); }
+
+/* ═══════════════════════════════════════════
+   TWO COL
+═══════════════════════════════════════════ */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* ═══════════════════════════════════════════
+   WA PREVIEW
+═══════════════════════════════════════════ */
+.wa-pre {
+  background: #e9ddd4;
+  border-radius: var(--r8); padding: 14px 16px;
+  font-family: var(--mono); font-size: 11.5px;
+  white-space: pre-wrap; max-height: 280px; overflow-y: auto;
+  line-height: 1.65; color: #1a1a1a;
+}
+
+/* ═══════════════════════════════════════════
+   NOTIFICATION TOAST
+═══════════════════════════════════════════ */
+.notif {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--g900); color: #fff;
+  padding: 12px 20px; border-radius: var(--r8);
+  font-size: 13px; font-weight: 500;
+  z-index: 200; display: none;
+  box-shadow: var(--sh4);
+  border-left: 3px solid var(--g600);
+  max-width: 320px;
+}
+.notif.show { display: flex; align-items: center; gap: 10px; animation: slideUp 0.25s cubic-bezier(.4,0,.2,1); }
+@keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* ═══════════════════════════════════════════
+   DROPDOWN SEARCH
+═══════════════════════════════════════════ */
+.dropdown-list {
+  position: absolute; top: calc(100% + 2px); left: 0; right: 0;
+  background: var(--white);
+  border: 1.5px solid var(--g700);
+  border-radius: var(--r6);
+  max-height: 200px; overflow-y: auto;
+  z-index: 999;
+  box-shadow: var(--sh3);
+}
+.dropdown-item {
+  padding: 9px 13px; font-size: 12.5px;
+  cursor: pointer; border-bottom: 1px solid var(--n100);
+  display: flex; justify-content: space-between; align-items: center;
+  transition: background 0.1s;
+}
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background: var(--g50); }
+.dropdown-item-name { font-weight: 500; color: var(--text); }
+.dropdown-item-meta { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.dropdown-empty { padding: 12px; text-align: center; font-size: 12px; color: var(--muted); }
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--n200); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--n300); }
+
+/* ═══════════════════════════════════════════
+   SEASON CARDS
+═══════════════════════════════════════════ */
+#season-cards > div { transition: box-shadow 0.2s; }
+#season-cards > div:hover { box-shadow: var(--sh2); }
+
+/* ═══════════════════════════════════════════
+   STAR RATING
+═══════════════════════════════════════════ */
+.star-btn { transition: transform 0.1s; }
+.star-btn:hover { transform: scale(1.2); }
+
+/* ═══════════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════════ */
+.empty-state {
+  padding: 40px 20px; text-align: center; color: var(--muted);
+}
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+.empty-state-text { font-size: 14px; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   MOBILE MENU TOGGLE
+═══════════════════════════════════════════ */
+.menu-toggle {
+  display: none;
+  width: 34px; height: 34px;
+  align-items: center; justify-content: center;
+  background: var(--n50); border: 1px solid var(--border);
+  border-radius: var(--r6); cursor: pointer; color: var(--text-2);
+  flex-shrink: 0;
+}
+.menu-toggle svg { width: 18px; height: 18px; }
+.sidebar-scrim {
+  display: none;
+  position: fixed; inset: 0; background: rgba(12,61,40,0.45);
+  z-index: 39;
+}
+.sidebar-scrim.show { display: block; }
+
+@media (max-width: 768px) {
+  .sidebar { width: 200px; }
+  .content { padding: 16px; }
+  .stat-grid { grid-template-columns: repeat(2,1fr); }
+  .stat-grid-6 { grid-template-columns: repeat(3,1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .topbar { padding: 12px 16px; }
+}
+
+@media (max-width: 520px) {
+  .menu-toggle { display: flex; }
+  .sidebar {
+    position: fixed; inset: 0 auto 0 0; z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+    box-shadow: var(--sh4);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+<div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar(false)"></div>
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">
+      <div class="brand-icon">🌿</div>
+      <div>
+        <div class="brand-name">Lanka Stores</div>
+        <div class="brand-sub">Management System</div>
+      </div>
+    </div>
+    <div id="fb-status">
+      <span id="fb-dot"></span>
+      <span id="fb-label">Local mode</span>
+    </div>
+    <button onclick="openModal('modal-firebase')" class="sidebar-btn">⚙ Firebase Setup</button>
+    <button onclick="installPWA()" id="pwa-install-btn" class="sidebar-btn" style="display:none">📲 Install කරන්න</button>
+  </div>
+  <nav class="nav-list">
+    <div class="nav-section">ප්‍රධාන</div>
+    <div class="nav-item active" onclick="go('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</div>
+    <div class="nav-item" onclick="go('profitloss',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/><polyline points="16,7 22,7 22,13"/></svg>Profit / Loss</div>
+    <div class="nav-section">ව්‍යාපාරය</div>
+    <div class="nav-item" onclick="go('alerts',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>⚠ Alerts</div>
+    <div class="nav-item" onclick="go('inventory',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Inventory</div>
+    <div class="nav-item" onclick="go('bills',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Bills / Invoice</div>
+    <div class="nav-item" onclick="go('purchaseorders',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Purchase Orders</div>
+    <div class="nav-item" onclick="go('returns',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>Returns / ආපසු</div>
+    <div class="nav-item" onclick="go('customers',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Customers</div>
+    <div class="nav-item" onclick="go('suppliers',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16,8 20,8 23,11 23,16 16,16 16,8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Suppliers</div>
+    <div class="nav-section">Reports</div>
+    <div class="nav-item" onclick="go('reports',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports</div>
+    <div class="nav-item" onclick="go('extraincome',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/><path d="M7 2l5 5 5-5"/></svg>Extra Income</div>
+    <div class="nav-item" onclick="go('expenses',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/></svg>Expenses</div>
+    <div class="nav-item" onclick="go('cashbook',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Cash Book</div>
+    <div class="nav-item" onclick="go('season',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>Season Plan</div>
+    <div class="nav-item" onclick="go('competitors',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Competitor Prices</div>
+    <div class="nav-item" onclick="go('feedback',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Feedback</div>
+    <div class="nav-item" onclick="go('credits',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Credit / ණය</div>
+  </nav>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="menu-toggle" id="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <h2 id="page-title">Dashboard</h2>
+  </div>
+  <div class="topbar-right">
+    <div class="search-bar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="සොයන්න..." id="global-search">
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="go('profitloss',document.querySelectorAll('.nav-item')[1])">📊 P&L</button>
+    <button class="btn btn-primary" onclick="openModal('modal-bill')">+ නව Bill</button>
+  </div>
+</div>
+<div class="content">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="stat-grid">
+    <div class="stat-card green"><div class="lbl">මාසික ආදායම</div><div class="val" id="s-rev">0</div><div class="sub">Cash + Credit</div></div>
+    <div class="stat-card blue"><div class="lbl">Bills ගණන</div><div class="val" id="s-bills">0</div><div class="sub">මේ මාසේ</div></div>
+    <div class="stat-card amber"><div class="lbl">Credit ණය</div><div class="val" id="s-credit">0</div><div class="sub">නොගෙවූ ණය</div></div>
+    <div class="stat-card red"><div class="lbl">අඩු Stock</div><div class="val" id="s-low">0</div><div class="sub">order කරන්න</div></div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card blue"><div class="lbl">📦 Stock වටිනාකම (Cost)</div><div class="val" id="s-stock-cost">0</div><div class="sub">ගත් මිලට</div></div>
+    <div class="stat-card green"><div class="lbl">💰 Stock වටිනාකම (Sell)</div><div class="val" id="s-stock-sell">0</div><div class="sub">විකිණුම් මිලට</div></div>
+    <div class="stat-card purple" style="--purple:#6B4FAB"><div class="lbl">🏷️ Stock Label Value</div><div class="val" id="s-stock-label">0</div><div class="sub">Label මිලට</div></div>
+    <div class="stat-card green"><div class="lbl">📈 Expected Profit</div><div class="val" id="s-stock-profit">0</div><div class="sub">Sell - Cost</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card"><div class="card-header"><h3>හොඳින් විකිණෙන</h3></div><div style="padding:14px" id="dash-top"></div></div>
+    <div class="card"><div class="card-header"><h3>අඩුවෙන් විකිණෙන</h3></div><div style="padding:14px" id="dash-low"></div></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><h3>🏆 Top Customers</h3></div>
+      <div class="table-wrap"><table><thead><tr><th>Rank</th><th>Customer</th><th>Bills</th><th>Total</th><th>ණය</th></tr></thead><tbody id="dash-topcust"></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>⚠️ ණය ඇති Customers</h3></div>
+      <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>ණය</th></tr></thead><tbody id="dash-creditcust"></tbody></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>මෑත Bills</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>Bill#</th><th>Customer</th><th>දිනය</th><th>මුදල</th><th>වට්ටම</th><th>ගෙවීම</th><th>Status</th><th></th></tr></thead><tbody id="dash-bills"></tbody></table></div>
+  </div>
+</div>
+
+<!-- PROFIT / LOSS -->
+<div class="page" id="page-profitloss">
+  <div class="card">
+    <div class="card-header">
+      <h3>Profit / Loss විශ්ලේෂණය</h3>
+      <div class="date-filter">
+        <select id="pl-mode" onchange="renderPL()"><option value="daily">දෛනික</option><option value="monthly" selected>මාසික</option><option value="custom">Custom Range</option></select>
+        <input type="month" id="pl-month" value="" onchange="renderPL()">
+        <input type="date" id="pl-from" style="display:none" onchange="renderPL()">
+        <input type="date" id="pl-to" style="display:none" onchange="renderPL()">
+        <button class="btn btn-pdf btn-sm" onclick="downloadPLpdf()">⬇ PDF</button>
+      </div>
+    </div>
+    <div id="pl-content" style="padding:18px"></div>
+  </div>
+  <div class="two-col">
+    <div class="card"><div class="card-header"><h3>දෛනික Profit (මේ මාසේ)</h3></div><div style="padding:14px" id="pl-daily-chart"></div></div>
+    <div class="card"><div class="card-header"><h3>Revenue vs Cost</h3></div><div style="padding:14px" id="pl-rev-chart"></div></div>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div class="page" id="page-inventory">
+  <div class="stat-grid">
+    <div class="stat-card blue"><div class="lbl">📦 Stock Value (Cost)</div><div class="val" id="inv-stat-cost">Rs.0</div><div class="sub">ගත් මිල × Stock</div></div>
+    <div class="stat-card green"><div class="lbl">💰 Stock Value (Sell)</div><div class="val" id="inv-stat-sell">Rs.0</div><div class="sub">විකුණුම් මිල × Stock</div></div>
+    <div class="stat-card amber"><div class="lbl">🎯 Expected Profit</div><div class="val" id="inv-stat-profit">Rs.0</div><div class="sub">විකිණූ විට ලැබෙන ලාබය</div></div>
+    <div class="stat-card purple"><div class="lbl">📊 Profit Margin</div><div class="val" id="inv-stat-margin">0%</div><div class="sub">සාමාන්‍ය ලාභ %</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h3>Stock / Inventory <span id="inv-count-badge" style="font-size:12px;background:var(--g100);color:var(--g700);padding:2px 8px;border-radius:10px;font-weight:500;margin-left:6px">0 items</span></h3>
+      <div class="card-header-actions">
+        <button class="btn btn-pdf btn-sm" onclick="downloadInventoryPDF()">⬇ PDF</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-inventory')">+ නව Item</button>
+      </div>
+    </div>
+    <div style="padding:10px 14px 4px">
+      <input type="text" id="inv-search-box" placeholder="🔍 Item සොයන්න... (නම හෝ category)" 
+        oninput="filterInvTable(this.value)"
+        style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--sans);outline:none">
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Item නම</th><th>Category</th><th>Stock</th><th>Unit</th><th>මිල විස්තර</th><th>Stock Value</th><th>Expected Profit</th><th>Supplier</th><th>Status</th><th></th></tr></thead><tbody id="inv-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- BILLS -->
+<div class="page" id="page-bills">
+  <div class="card">
+    <div class="card-header">
+      <h3>Bills / Invoices</h3>
+      <div class="card-header-actions">
+        <button class="btn btn-pdf btn-sm" onclick="downloadSalesPDF()">⬇ Sales PDF</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-bill')">+ නව Bill</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Bill#</th><th>Customer</th><th>දිනය</th><th>Items</th><th>මුළු මුදල</th><th>ගෙවූ</th><th>ඉතිරි / Balance</th><th>Status</th><th></th></tr></thead><tbody id="bills-body"></tbody></table></div>
+  </div>
+</div>
+
+
+<!-- ALERTS PAGE -->
+<div class="page" id="page-alerts">
+  <div class="stat-grid">
+    <div class="stat-card red"><div class="lbl">Expired Items</div><div class="val" id="al-expired">0</div></div>
+    <div class="stat-card amber"><div class="lbl">Expiring Soon (3mo)</div><div class="val" id="al-expiring">0</div></div>
+    <div class="stat-card red"><div class="lbl">Low Stock Items</div><div class="val" id="al-lowstock">0</div></div>
+    <div class="stat-card blue"><div class="lbl">Out of Stock</div><div class="val" id="al-outofstock">0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>🔴 Expired Items</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Expiry Date</th><th>දින ගණන</th></tr></thead><tbody id="al-expired-body"></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>🟡 Expiring Soon (3 මාස ඇතුළත)</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Stock</th><th>Expiry Date</th><th>දින ගණන</th></tr></thead><tbody id="al-expiring-body"></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>⚠ Low Stock Items</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Current Stock</th><th>Min Stock</th><th>Order කරන්න</th></tr></thead><tbody id="al-lowstock-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- PURCHASE ORDERS -->
+<div class="page" id="page-purchaseorders">
+  <div class="stat-grid">
+    <div class="stat-card blue"><div class="lbl">Total Orders</div><div class="val" id="po-stat-total">0</div><div class="sub">සියල්ල</div></div>
+    <div class="stat-card amber"><div class="lbl">Pending</div><div class="val" id="po-stat-pending">0</div><div class="sub">නොලැබුණු</div></div>
+    <div class="stat-card green"><div class="lbl">Received</div><div class="val" id="po-stat-received">0</div><div class="sub">ලැබුණු</div></div>
+    <div class="stat-card amber"><div class="lbl">Total Value</div><div class="val" id="po-stat-value">0</div><div class="sub">මුළු වටිනාකම</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h3>Purchase Orders</h3>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-po')">+ නව Purchase Order</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>PO#</th><th>Supplier</th><th>දිනය</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="po-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- RETURNS -->
+<div class="page" id="page-returns">
+  <div class="card">
+    <div class="card-header"><h3>Returns / ආපසු ගෙනා බඩු</h3><button class="btn btn-amber btn-sm" onclick="openModal('modal-return')">+ Return ලියාපදිංචි</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Return#</th><th>Bill#</th><th>Customer</th><th>Item</th><th>Qty</th><th>මිල</th><th>හේතුව</th><th>දිනය</th><th>Stock</th></tr></thead><tbody id="returns-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- CUSTOMERS -->
+<div class="page" id="page-customers">
+  <div class="card">
+    <div class="card-header"><h3>Customers</h3><button class="btn btn-primary btn-sm" onclick="openModal('modal-customer')">+ නව Customer</button></div>
+    <div class="table-wrap"><table><thead><tr><th>No</th><th>නම</th><th>Phone</th><th>ගම</th><th>Total</th><th>ණය</th><th></th></tr></thead><tbody id="cust-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- SUPPLIERS -->
+<div class="page" id="page-suppliers">
+  <div class="card">
+    <div class="card-header"><h3>Suppliers</h3><button class="btn btn-primary btn-sm" onclick="openModal('modal-supplier')">+ නව Supplier</button></div>
+    <div class="table-wrap"><table><thead><tr><th>නම</th><th>Company</th><th>Phone</th><th>Products</th><th>Last Order</th><th></th></tr></thead><tbody id="sup-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- REPORTS -->
+<div class="page" id="page-reports">
+  <div class="stat-grid">
+    <div class="stat-card green"><div class="lbl">Cash ආදායම</div><div class="val" id="r-cash">0</div><div class="sub">මේ මාසේ</div></div>
+    <div class="stat-card blue"><div class="lbl">Credit ණය</div><div class="val" id="r-cred">0</div><div class="sub">නොගෙවූ</div></div>
+    <div class="stat-card amber"><div class="lbl">Cost of Goods</div><div class="val" id="r-cost">0</div></div>
+    <div class="stat-card green"><div class="lbl">Gross Profit</div><div class="val" id="r-profit">0</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card"><div class="card-header"><h3>Top Selling</h3></div><div style="padding:14px" id="rep-top"></div></div>
+    <div class="card"><div class="card-header"><h3>Low Selling</h3></div><div style="padding:14px" id="rep-low"></div></div>
+  </div>
+  <!-- PROFIT ANALYSIS -->
+  <div class="card">
+    <div class="card-header">
+      <h3>📊 Profit විශ්ලේෂණය - භාණ්ඩ අනුව</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="profit-sort" onchange="renderProfitTable()" style="padding:5px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:var(--font)">
+          <option value="profit-desc">Profit වැඩිම → අඩුම</option>
+          <option value="profit-asc">Profit අඩුම → වැඩිම</option>
+          <option value="pct-desc">% වැඩිම → අඩුම</option>
+          <option value="pct-asc">% අඩුම → වැඩිම</option>
+        </select>
+        <button class="btn btn-pdf btn-sm" onclick="downloadProfitPDF()">⬇ PDF</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>භාණ්ඩය</th>
+          <th>Category</th>
+          <th>Cost Price</th>
+          <th>Sell Price</th>
+          <th>Profit (Rs.)</th>
+          <th>Profit %</th>
+          <th>Sold Units</th>
+          <th>Total Profit</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody id="profit-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Customer History</h3><button class="btn btn-pdf btn-sm" onclick="downloadSalesPDF()">⬇ PDF</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Bills</th><th>Total</th><th>Cash</th><th>Credit</th><th>ණය</th></tr></thead><tbody id="rep-cust"></tbody></table></div>
+  </div>
+</div>
+
+
+
+
+<!-- EXTRA INCOME -->
+<div class="page" id="page-extraincome">
+  <div class="stat-grid">
+    <div class="stat-card green"><div class="lbl">මාසික Extra Income</div><div class="val" id="ei-monthly">0</div></div>
+    <div class="stat-card blue"><div class="lbl">Annual Total</div><div class="val" id="ei-yearly">0</div></div>
+    <div class="stat-card purple"><div class="lbl">Sources ගණන</div><div class="val" id="ei-sources">0</div></div>
+    <div class="stat-card green"><div class="lbl">Total (Sales + Extra)</div><div class="val" id="ei-combined">0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h3>💵 Extra Income Tracker</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-pdf btn-sm" onclick="downloadEIPDF()">⬇ PDF</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-extraincome')">+ Income Add</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Source</th><th>විස්තරය</th><th>මුදල</th><th>දිනය</th><th>Recurring</th><th></th></tr></thead><tbody id="ei-body"></tbody></table></div>
+  </div>
+  <div class="two-col">
+    <div class="card"><div class="card-header"><h3>Source අනුව</h3></div><div style="padding:14px" id="ei-chart"></div></div>
+    <div class="card"><div class="card-header"><h3>Sales vs Extra Income</h3></div><div style="padding:14px" id="ei-compare"></div></div>
+  </div>
+</div>
+
+<!-- EXPENSES -->
+<div class="page" id="page-expenses">
+  <div class="stat-grid">
+    <div class="stat-card red"><div class="lbl">මාසික වියදම්</div><div class="val" id="exp-monthly">0</div><div class="sub">මේ මාසේ</div></div>
+    <div class="stat-card amber"><div class="lbl">සතිපතා</div><div class="val" id="exp-weekly">0</div><div class="sub">මේ සතියේ</div></div>
+    <div class="stat-card blue"><div class="lbl">මේ වර්ෂය</div><div class="val" id="exp-yearly">0</div></div>
+    <div class="stat-card green"><div class="lbl">Net Profit (after exp)</div><div class="val" id="exp-netprofit">0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h3>💰 Expense Tracker</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-pdf btn-sm" onclick="downloadExpPDF()">⬇ PDF</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-expense')">+ වියදමක් Add</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Category</th><th>විස්තරය</th><th>මුදල</th><th>දිනය</th><th>ගෙවීම</th><th></th></tr></thead><tbody id="exp-body"></tbody></table></div>
+  </div>
+  <div class="two-col">
+    <div class="card"><div class="card-header"><h3>Category අනුව</h3></div><div style="padding:14px" id="exp-chart"></div></div>
+    <div class="card"><div class="card-header"><h3>මාසිකව</h3></div><div style="padding:14px" id="exp-monthly-chart"></div></div>
+  </div>
+</div>
+
+<!-- CASH BOOK -->
+<div class="page" id="page-cashbook">
+  <div class="stat-grid">
+    <div class="stat-card green"><div class="lbl">Opening Balance</div><div class="val" id="cb-opening">0</div></div>
+    <div class="stat-card green"><div class="lbl">Cash In (ලැබුණු)</div><div class="val" id="cb-in">0</div></div>
+    <div class="stat-card red"><div class="lbl">Cash Out (ගිය)</div><div class="val" id="cb-out">0</div></div>
+    <div class="stat-card blue"><div class="lbl">Closing Balance</div><div class="val" id="cb-closing">0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h3>📒 Daily Cash Book</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="date" id="cb-date-filter" onchange="renderCashBook()" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:var(--font)">
+        <button class="btn btn-pdf btn-sm" onclick="downloadCashBookPDF()">⬇ PDF</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-cashentry')">+ Entry Add</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>දිනය</th><th>විස්තරය</th><th>Cash In</th><th>Cash Out</th><th>Balance</th><th>Type</th><th></th></tr></thead><tbody id="cb-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- SEASON PLAN -->
+<div class="page" id="page-season">
+  <div class="card">
+    <div class="card-header">
+      <h3>🌾 Season Planning</h3>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-season')">+ Season Plan Add</button>
+    </div>
+    <div id="season-cards" style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>📦 Season Stock Preparation</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>Item</th><th>Current Stock</th><th>Expected Need</th><th>Order කරන්න</th><th>Status</th></tr></thead><tbody id="season-stock-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- COMPETITOR PRICES -->
+<div class="page" id="page-competitors">
+  <div class="card">
+    <div class="card-header">
+      <h3>🏪 Competitor Price Log</h3>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-competitor')">+ Price Add</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Item</th><th>Competitor</th><th>ඔවුන්ගේ Price</th><th>ඔබේ Price</th><th>Difference</th><th>දිනය</th><th>Notes</th><th></th></tr></thead><tbody id="comp-body"></tbody></table></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>📊 Price Comparison</h3></div>
+    <div style="padding:14px" id="comp-chart"></div>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="page" id="page-feedback">
+  <div class="card">
+    <div class="card-header">
+      <h3>⭐ Customer Feedback</h3>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-feedback')">+ Feedback Add කරන්න</button>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>භාණ්ඩය</th><th>Customer</th><th>Rating</th><th>Comment</th><th>දිනය</th><th></th></tr></thead>
+      <tbody id="feedback-body"></tbody></table>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card"><div class="card-header"><h3>⭐ Item Rating Summary</h3></div><div style="padding:14px" id="feedback-summary"></div></div>
+    <div class="card"><div class="card-header"><h3>🏆 Best Rated Items</h3></div><div style="padding:14px" id="feedback-best"></div></div>
+  </div>
+</div>
+
+<!-- CREDITS -->
+<div class="page" id="page-credits">
+  <div class="card">
+    <div class="card-header"><h3>Credit / ණය පාලනය</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>ණය</th><th>Bills</th><th>Last Bill</th><th>Status</th><th></th></tr></thead><tbody id="cred-body"></tbody></table></div>
+  </div>
+</div>
+
+</div></div></div>
+
+<!-- ======= MODALS ======= -->
+
+<!-- INVENTORY MODAL -->
+<div class="modal-overlay" id="modal-inventory">
+  <div class="modal">
+    <div class="modal-header"><h3>Item / Stock</h3><button class="modal-close" onclick="closeModal('modal-inventory')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>Item නම *</label><input id="inv-name" placeholder="eg: Urea"></div>
+        <div class="form-group"><label>Category *</label><select id="inv-cat">
+          <option value="">-- Category තෝරන්න --</option>
+          <option>Fertilizer</option><option>Weedicide</option><option>Insecticide</option><option>Fungicide</option><option>Seeds</option><option>Other</option>
+        </select></div>
+        <div class="form-group"><label>Supplier</label><select id="inv-sup"><option value="">-- Supplier --</option></select></div>
+
+        <div class="form-group full" style="border-top:1px solid var(--border);margin-top:6px;padding-top:10px"><label style="font-weight:700;color:var(--g700)">📦 Bag / Bulk Pricing</label></div>
+        <div class="form-group"><label>Bulk Unit නම (eg: 50kg bag)</label><input id="inv-unit" placeholder="eg: 50kg bag"></div>
+        <div class="form-group"><label>1 Bag = කීය kg?</label><input id="inv-bulk-qty" type="number" placeholder="eg: 50" oninput="calcSmallPrice()"></div>
+        <div class="form-group"><label>Stock ප්‍රමාණය (Bags)</label><input id="inv-stock" type="number" placeholder="0"></div>
+        <div class="form-group"><label>Min Stock (alert)</label><input id="inv-min" type="number" placeholder="5"></div>
+        <div class="form-group"><label>💰 Cost Price (ගත් මිල) /bag</label><input id="inv-cost" type="number" placeholder="0"></div>
+        <div class="form-group"><label>🏷️ Label Price /bag</label><input id="inv-label" type="number" placeholder="0"></div>
+        <div class="form-group"><label>✅ Bag Selling Price (Rs.)</label><input id="inv-sell" type="number" placeholder="eg: 4800" oninput="calcSmallPrice()"></div>
+
+        <div class="form-group full" style="border-top:1px solid var(--border);margin-top:6px;padding-top:10px"><label style="font-weight:700;color:var(--b700,#1a5fa5)">⚖ Loose Selling (optional)</label></div>
+        <div class="form-group"><label>Loose Unit නම (eg: kg)</label><input id="inv-small-unit" placeholder="eg: kg" value="kg"></div>
+        <div class="form-group"><label>⚖ Loose kg Price (Rs./kg)</label><input id="inv-small-price" type="number" placeholder="eg: 110"></div>
+        <div class="form-group"><label>🔬 Loose Gram Price (Rs./100g)</label><input id="inv-gram-price" type="number" placeholder="eg: 12"></div>
+        <div class="form-group"><label>📅 Expiry Date</label><input id="inv-expiry" type="date"></div>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:var(--b50,#eef5fc);border-radius:8px;font-size:12px;color:var(--text-2)">
+        💡 50kg bag එකක් pirit විකුණනවානම් විතරයි loose pricing fill කරන්න ඕනේ. Loose price bag rate එකෙන් වෙනස් වෙන්න පුළුවන් (eg: kg ගානේ වැඩි rate එකක්).
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-inventory')">Cancel</button><button class="btn btn-primary" onclick="saveInv()">Save</button></div>
+  </div>
+</div>
+
+<!-- BILL MODAL -->
+<div class="modal-overlay" id="modal-bill">
+  <div class="modal" style="width:min(860px,98vw);max-height:95vh;overflow-y:auto">
+    <div class="modal-header"><h3>නව Bill</h3><button class="modal-close" onclick="closeModal('modal-bill')">✕</button></div>
+    <div class="modal-body">
+      <div id="held-bills-strip" style="display:none;margin-bottom:10px;padding:8px;background:var(--amber-light,#FFF7E8);border:1px dashed var(--amber,#C4622D);border-radius:8px">
+        <div style="font-size:11px;color:var(--amber,#C4622D);font-weight:600;margin-bottom:6px">⏸ Hold කළ Bills (resume කරන්න click කරන්න)</div>
+        <div id="held-bills-list" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Customer</label>
+          <div style="position:relative">
+            <input type="text" id="cust-search-bill" placeholder="🔍 Customer සොයන්න... (හිස් = Walk-in)" 
+              oninput="custSearch(this.value)"
+              onclick="custSearch(this.value)"
+              autocomplete="off"
+              style="padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:var(--font);width:100%;outline:none">
+            <input type="hidden" id="bill-cust" value="">
+            <div id="cust-list-bill" class="dropdown-list" style="display:none"></div>
+          </div>
+        </div>
+        <div class="form-group"><label>දිනය</label><input id="bill-date" type="date"></div>
+        <div class="form-group"><label>ගෙවීම</label><select id="bill-pay"><option value="cash">Cash</option><option value="credit">Credit</option></select></div>
+        <div class="form-group"><label>Cash ගෙවූ (Credit නම්)</label><input id="bill-paid" type="number" placeholder="0" value="0" oninput="calcTotal()"></div>
+      </div>
+      <div style="margin-top:14px">
+        <div style="overflow-x:auto">
+        <div class="bill-row-hdr">
+          <span class="bill-hdr-lbl">ITEM</span>
+          <span class="bill-hdr-lbl">QTY</span>
+          <span class="bill-hdr-lbl">🏷 LABEL</span>
+          <span class="bill-hdr-lbl">💰 COST</span>
+          <span class="bill-hdr-lbl">✅ SELL</span>
+          <span class="bill-hdr-lbl">DISC%</span>
+          <span class="bill-hdr-lbl">TOTAL</span>
+          <span></span>
+        </div></div>
+        <div style="overflow-x:auto"><div id="bill-rows" style="min-width:680px"></div></div>
+        <button class="btn btn-outline btn-sm" onclick="addRow()" style="margin-top:7px">+ Item</button>
+      </div>
+      <div class="bill-total-box">
+        <div class="bill-tr" style="color:var(--muted);font-size:12px"><span>Label Price එකතුව</span><span id="bt-label-total">Rs.0</span></div>
+        <div class="bill-tr disc"><span>🎁 Discount (Label - Sell)</span><span id="bt-label-disc">- Rs.0</span></div>
+        <div class="bill-tr" style="border-top:2px solid var(--border);padding-top:6px"><span>විකුණුම් මුදල (Subtotal)</span><span id="bt-sub">Rs.0</span></div>
+        <div class="bill-tr disc"><span>➕ Extra Discount %</span><span id="bt-disc">- Rs.0</span></div>
+        <div class="bill-tr"><span>ගෙවිය යුතු මුදල</span><span id="bt-aft" style="font-weight:700;color:var(--g800)">Rs.0</span></div>
+        <div class="bill-tr"><span>Cash ගෙවූ</span><span id="bt-paid">Rs.0</span></div>
+        <div class="bill-tr final"><span>ශේෂය / ණය</span><span id="bt-bal">Rs.0</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-bill')">Cancel</button>
+      <button class="btn btn-outline" onclick="holdBill()" style="border-color:var(--amber,#C4622D);color:var(--amber,#C4622D)">⏸ Hold කරලා අලුත් Bill එකක්</button>
+      <button class="btn btn-primary" onclick="saveBill()">Bill සාදන්න</button>
+    </div>
+  </div>
+</div>
+
+<!-- RETURN MODAL -->
+<div class="modal-overlay" id="modal-return">
+  <div class="modal" style="width:560px">
+    <div class="modal-header"><h3>🔄 Return ලියාපදිංචි</h3><button class="modal-close" onclick="closeModal('modal-return')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Bill #</label><select id="ret-bill" onchange="loadReturnBill()"><option value="">-- Bill select කරන්න --</option></select></div>
+        <div class="form-group"><label>Item</label><select id="ret-item"><option value="">-- Item --</option></select></div>
+        <div class="form-group"><label>Return Qty</label><input id="ret-qty" type="number" min="1" placeholder="1"></div>
+        <div class="form-group"><label>Return Price (Rs.)</label><input id="ret-price" type="number" placeholder="0"></div>
+        <div class="form-group full"><label>හේතුව</label><input id="ret-reason" placeholder="eg: දෝෂ සහිත, වැරදි item..."></div>
+      </div>
+      <div id="ret-info" style="margin-top:10px;padding:10px;background:var(--e100);border-radius:7px;font-size:12px;color:#854F0B;display:none"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-return')">Cancel</button><button class="btn btn-amber" onclick="saveReturn()">Return ලියාපදිංචි කරන්න</button></div>
+  </div>
+</div>
+
+<!-- CUSTOMER MODAL -->
+<div class="modal-overlay" id="modal-customer">
+  <div class="modal">
+    <div class="modal-header"><h3>නව Customer</h3><button class="modal-close" onclick="closeModal('modal-customer')">✕</button></div>
+    <div class="modal-body">
+      <div style="margin-bottom:10px;padding:8px 12px;background:var(--g50);border-radius:8px;font-size:13px;color:var(--g700);font-family:var(--mono)">
+        Customer No: <strong id="cust-auto-no">—</strong> (auto)
+      </div>
+      <div class="form-grid">
+        <div class="form-group full"><label>නම *</label><input id="cn" placeholder="නම"></div>
+        <div class="form-group"><label>Phone</label><input id="cp" placeholder="07X XXX XXXX"></div>
+        <div class="form-group"><label>ගම / Area</label><input id="ca" placeholder="ගම"></div>
+        <div class="form-group full"><label>ලිපිනය (Address)</label><input id="cadr" placeholder="සම්පූර්ණ ලිපිනය"></div>
+        <div class="form-group full"><label>Notes</label><input id="cno" placeholder="..."></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-customer')">Cancel</button><button class="btn btn-primary" onclick="saveCust()">Save</button></div>
+  </div>
+</div>
+
+<!-- SUPPLIER MODAL -->
+<div class="modal-overlay" id="modal-supplier">
+  <div class="modal">
+    <div class="modal-header"><h3>නව Supplier</h3><button class="modal-close" onclick="closeModal('modal-supplier')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>නම</label><input id="sn" placeholder="නම"></div>
+        <div class="form-group"><label>Company</label><input id="sc" placeholder="Company"></div>
+        <div class="form-group"><label>Phone</label><input id="sph" placeholder="07X XXX XXXX"></div>
+        <div class="form-group"><label>Products</label><input id="spr" placeholder="Fertilizer..."></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-supplier')">Cancel</button><button class="btn btn-primary" onclick="saveSup()">Save</button></div>
+  </div>
+</div>
+
+<!-- CREDIT PAY MODAL -->
+<div class="modal-overlay" id="modal-paycredit">
+  <div class="modal" style="width:340px">
+    <div class="modal-header"><h3>ණය ගෙවීම</h3><button class="modal-close" onclick="closeModal('modal-paycredit')">✕</button></div>
+    <div class="modal-body">
+      <div id="pc-info" style="margin-bottom:12px;font-size:13px;color:var(--muted)"></div>
+      <div class="form-group"><label>ගෙවන මුදල (Rs.)</label><input id="pc-amt" type="number" placeholder="0"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-paycredit')">Cancel</button><button class="btn btn-primary" onclick="confirmPay()">ගෙවීම තහවුරු</button></div>
+  </div>
+</div>
+
+<!-- WA BILL MODAL -->
+<div class="modal-overlay" id="modal-wa">
+  <div class="modal" style="width:500px">
+    <div class="modal-header"><h3>📱 WhatsApp Bill</h3><button class="modal-close" onclick="closeModal('modal-wa')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:9px">පහත bill copy කරලා WhatsApp ට paste කරන්න.</p>
+      <div class="wa-pre" id="wa-pre"></div>
+      <div style="margin-top:11px;display:flex;gap:8px">
+        <button class="btn btn-outline" style="flex:1" onclick="copyWA()">📋 Copy</button>
+        <a id="wa-link" href="#" target="_blank" class="btn btn-wa" style="flex:1;text-decoration:none;justify-content:center" onclick="closeModal('modal-wa')">💬 WhatsApp Open</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- PURCHASE ORDER MODAL -->
+<div class="modal-overlay" id="modal-po">
+  <div class="modal" style="width:min(760px,96vw)">
+    <div class="modal-header"><h3>🛒 Purchase Order</h3><button class="modal-close" onclick="closeModal('modal-po')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Supplier / Company</label><select id="po-supplier"><option value="">-- Supplier --</option></select></div>
+        <div class="form-group"><label>දිනය</label><input id="po-date" type="date"></div>
+        <div class="form-group"><label>🚛 Transport Cost (Rs.)</label><input id="po-transport" type="number" placeholder="0" value="0" oninput="calcPOTotal()"></div>
+        <div class="form-group"><label>🛍 Packaging Cost (Rs.)</label><input id="po-packaging" type="number" placeholder="0" value="0" oninput="calcPOTotal()"></div>
+        <div class="form-group full"><label>Notes</label><input id="po-notes" placeholder="Order notes..."></div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div style="display:grid;grid-template-columns:2fr 0.55fr 0.8fr 0.8fr 0.8fr 0.8fr auto;gap:5px;margin-bottom:5px;padding:0 4px">
+          <span style="font-size:10px;font-weight:600;color:var(--muted)">ITEM</span>
+          <span style="font-size:10px;font-weight:600;color:var(--muted);text-align:center">QTY</span>
+          <span style="font-size:10px;font-weight:600;color:var(--muted);text-align:center">COST/unit</span>
+          <span style="font-size:10px;font-weight:600;color:var(--muted);text-align:center">SELL/unit</span>
+          <span style="font-size:10px;font-weight:600;color:var(--muted);text-align:center">EXPIRY</span>
+          <span style="font-size:10px;font-weight:600;color:var(--muted);text-align:center">SUBTOTAL</span>
+          <span></span>
+        </div>
+        <div id="po-rows"></div>
+        <button class="btn btn-outline btn-sm" onclick="addPORow()" style="margin-top:7px">+ Item Add කරන්න</button>
+      </div>
+
+      <div style="background:var(--b50,#EEF5FC);border-radius:10px;padding:14px;margin-top:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
+          <span style="color:var(--muted)">Items Total</span>
+          <span id="po-items-total" style="font-family:var(--mono)">Rs.0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
+          <span style="color:var(--muted)">🚛 Transport</span>
+          <span id="po-transport-display" style="font-family:var(--mono)">Rs.0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
+          <span style="color:var(--muted)">🛍 Packaging</span>
+          <span id="po-packaging-display" style="font-family:var(--mono)">Rs.0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:2px solid var(--border)">
+          <span style="font-size:14px;color:#185FA5;font-weight:600">මුළු Purchase Amount</span>
+          <span style="font-size:20px;font-weight:700;color:#185FA5;font-family:var(--mono)" id="po-total-display">Rs.0</span>
+        </div>
+        <div style="margin-top:8px;padding:8px;background:var(--g50);border-radius:6px;font-size:11px;color:var(--muted)">
+          💡 Transport + Packaging costs item cost prices එකට proportionally add වෙනවා
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)">
+        <input type="checkbox" id="po-direct-receive" checked style="width:16px;height:16px;accent-color:var(--green)">
+        <label for="po-direct-receive">✅ Inventory දැන්ම update කරන්න</label>
+      </div>
+      <button class="btn btn-outline" onclick="closeModal('modal-po')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePO()">Purchase Order සාදන්න</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- EXTRA INCOME MODAL -->
+<div class="modal-overlay" id="modal-extraincome">
+  <div class="modal">
+    <div class="modal-header"><h3>💵 Extra Income Add</h3><button class="modal-close" onclick="closeModal('modal-extraincome')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Source / ප්‍රභවය</label>
+          <select id="ei-source">
+            <option>Commission</option>
+            <option>Demo Program</option>
+            <option>Company Incentive</option>
+            <option>Delivery Charge</option>
+            <option>Consultation Fee</option>
+            <option>Rental Income</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>දිනය</label><input id="ei-date" type="date"></div>
+        <div class="form-group full"><label>විස්තරය</label><input id="ei-desc" placeholder="eg: CIC commission March"></div>
+        <div class="form-group"><label>මුදල (Rs.)</label><input id="ei-amount" type="number" placeholder="0"></div>
+        <div class="form-group"><label>Recurring?</label>
+          <select id="ei-recurring">
+            <option value="no">එක් වරක් (One-time)</option>
+            <option value="monthly">මාසිකව (Monthly)</option>
+            <option value="seasonal">Season එකට</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-extraincome')">Cancel</button><button class="btn btn-primary" onclick="saveEI()">Save</button></div>
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-overlay" id="modal-expense">
+  <div class="modal">
+    <div class="modal-header"><h3>💰 වියදමක් Add කරන්න</h3><button class="modal-close" onclick="closeModal('modal-expense')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Category</label>
+          <select id="exp-cat">
+            <option>කුලිය (Rent)</option><option>විදුලිය (Electricity)</option>
+            <option>Transport</option><option>Staff Wages</option>
+            <option>Packaging</option><option>Marketing</option>
+            <option>Equipment</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>දිනය</label><input id="exp-date" type="date"></div>
+        <div class="form-group full"><label>විස්තරය</label><input id="exp-desc" placeholder="eg: March කුලිය"></div>
+        <div class="form-group"><label>මුදල (Rs.)</label><input id="exp-amount" type="number" placeholder="0"></div>
+        <div class="form-group"><label>ගෙවීම</label><select id="exp-pay"><option value="cash">Cash</option><option value="transfer">Bank Transfer</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-expense')">Cancel</button><button class="btn btn-primary" onclick="saveExpense()">Save</button></div>
+  </div>
+</div>
+
+<!-- CASH ENTRY MODAL -->
+<div class="modal-overlay" id="modal-cashentry">
+  <div class="modal">
+    <div class="modal-header"><h3>📒 Cash Entry</h3><button class="modal-close" onclick="closeModal('modal-cashentry')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Type</label>
+          <select id="ce-type">
+            <option value="in">Cash In (ලැබුණු)</option>
+            <option value="out">Cash Out (ගිය)</option>
+            <option value="opening">Opening Balance</option>
+          </select>
+        </div>
+        <div class="form-group"><label>දිනය</label><input id="ce-date" type="date"></div>
+        <div class="form-group full"><label>විස්තරය</label><input id="ce-desc" placeholder="eg: Sales, Expense..."></div>
+        <div class="form-group"><label>මුදල (Rs.)</label><input id="ce-amount" type="number" placeholder="0"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-cashentry')">Cancel</button><button class="btn btn-primary" onclick="saveCashEntry()">Save</button></div>
+  </div>
+</div>
+
+<!-- SEASON MODAL -->
+<div class="modal-overlay" id="modal-season">
+  <div class="modal">
+    <div class="modal-header"><h3>🌾 Season Plan</h3><button class="modal-close" onclick="closeModal('modal-season')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Season</label><select id="sea-name"><option>Yala 2025</option><option>Maha 2025/26</option><option>Yala 2026</option><option>Maha 2026/27</option></select></div>
+        <div class="form-group"><label>Start Date</label><input id="sea-start" type="date"></div>
+        <div class="form-group"><label>End Date</label><input id="sea-end" type="date"></div>
+        <div class="form-group"><label>Target Revenue (Rs.)</label><input id="sea-target" type="number" placeholder="0"></div>
+        <div class="form-group full"><label>Notes</label><textarea id="sea-notes" rows="3" style="padding:8px;border:1px solid var(--border);border-radius:7px;font-family:var(--font);font-size:13px;width:100%;resize:vertical" placeholder="Season notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-season')">Cancel</button><button class="btn btn-primary" onclick="saveSeason()">Save</button></div>
+  </div>
+</div>
+
+<!-- COMPETITOR MODAL -->
+<div class="modal-overlay" id="modal-competitor">
+  <div class="modal">
+    <div class="modal-header"><h3>🏪 Competitor Price</h3><button class="modal-close" onclick="closeModal('modal-competitor')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Item</label><select id="comp-item"><option value="">-- Item --</option></select></div>
+        <div class="form-group"><label>Competitor නම</label><input id="comp-name" placeholder="eg: Super Agro"></div>
+        <div class="form-group"><label>ඔවුන්ගේ Price (Rs.)</label><input id="comp-price" type="number" placeholder="0"></div>
+        <div class="form-group"><label>දිනය</label><input id="comp-date" type="date"></div>
+        <div class="form-group full"><label>Notes</label><input id="comp-notes" placeholder="eg: Season offer..."></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-competitor')">Cancel</button><button class="btn btn-primary" onclick="saveCompetitor()">Save</button></div>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="modal-overlay" id="modal-feedback">
+  <div class="modal">
+    <div class="modal-header"><h3>⭐ Customer Feedback</h3><button class="modal-close" onclick="closeModal('modal-feedback')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Customer</label><select id="fb-cust"><option value="">-- Customer --</option></select></div>
+        <div class="form-group"><label>භාණ්ඩය (Item)</label><select id="fb-item"><option value="">-- Item --</option></select></div>
+        <div class="form-group full"><label>⭐ Rating</label>
+          <div style="display:flex;gap:10px;margin-top:4px" id="star-container">
+            <span class="star-btn" onclick="setRating(1)" style="font-size:28px;cursor:pointer">⭐</span>
+            <span class="star-btn" onclick="setRating(2)" style="font-size:28px;cursor:pointer">⭐</span>
+            <span class="star-btn" onclick="setRating(3)" style="font-size:28px;cursor:pointer">⭐</span>
+            <span class="star-btn" onclick="setRating(4)" style="font-size:28px;cursor:pointer">⭐</span>
+            <span class="star-btn" onclick="setRating(5)" style="font-size:28px;cursor:pointer">⭐</span>
+          </div>
+          <input type="hidden" id="fb-rating" value="0">
+          <div id="rating-label" style="font-size:12px;color:var(--muted);margin-top:4px">Rating select කරන්න</div>
+        </div>
+        <div class="form-group full"><label>Comment / හේතුව</label><textarea id="fb-comment" rows="3" placeholder="Customer feedback..." style="padding:8px;border:1px solid var(--border);border-radius:7px;font-family:var(--font);font-size:13px;width:100%;resize:vertical"></textarea></div>
+        <div class="form-group"><label>දිනය</label><input id="fb-date" type="date"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-feedback')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFeedback()">Save Feedback</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE SETUP MODAL -->
+<div class="modal-overlay" id="modal-firebase">
+  <div class="modal" style="width:520px">
+    <div class="modal-header"><h3>🔥 Firebase Setup</h3><button class="modal-close" onclick="closeModal('modal-firebase')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Firebase config paste කරන්න. Devices සියල්ල real-time sync වෙනවා.</p>
+      <div style="background:var(--n100);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.7">
+        📋 Steps: <strong>console.firebase.google.com</strong> → Project → ⚙ Settings → Your apps → Web → Config → Copy කරලා paste කරන්න. JS format හෝ JSON format දෙකම OK!
+      </div>
+      <div class="form-group full">
+        <label>Firebase Config (JSON)</label>
+        <textarea id="fb-config-input" rows="8" placeholder="Firebase console එකෙන් copy කළ config paste කරන්න:&#10;&#10;const firebaseConfig = {&#10;  apiKey: 'AIzaSy...',&#10;  authDomain: '...',&#10;  projectId: '...',&#10;  storageBucket: '...',&#10;  messagingSenderId: '...',&#10;  appId: '...'&#10;};" style="padding:10px;border:1px solid var(--border);border-radius:8px;font-family:var(--mono);font-size:12px;width:100%;resize:vertical;color:var(--text)"></textarea>
+      </div>
+      <div id="fb-test-result" style="margin-top:10px;display:none;padding:10px;border-radius:7px;font-size:12px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-firebase')">Cancel</button>
+      <button class="btn btn-outline" onclick="testFBConnection()">🔍 Test</button>
+      <button class="btn btn-primary" onclick="saveFBConfig()">🔥 Firebase Connect</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ===== DB =====
+let db={inventory:[],customers:[],suppliers:[],bills:[],returns:[],billCounter:1,returnCounter:1};
+let billRows=[];
+let curCreditCust=null;
+let curWAtext='';
+
+function loadDB(){
+  const s=localStorage.getItem('agro_v3');
+  if(s)try{db=JSON.parse(s);}catch(e){}
+  if(!db.billCounter)db.billCounter=1;
+  if(!db.returnCounter)db.returnCounter=1;
+  if(!db.returns)db.returns=[];
+  if(!db.purchaseOrders)db.purchaseOrders=[];
+  if(!db.feedbacks)db.feedbacks=[];
+  if(!db.expenses)db.expenses=[];
+  if(!db.cashEntries)db.cashEntries=[];
+  if(!db.seasons)db.seasons=[];
+  if(!db.competitors)db.competitors=[];
+  if(!db.extraIncome)db.extraIncome=[];
+}
+function saveDB(){localStorage.setItem('agro_v3',JSON.stringify(db));}
+function uid(){return Math.random().toString(36).substr(2,9);}
+function fmt(n){return(Math.round(n)||0).toLocaleString();}
+function today(){return new Date().toISOString().split('T')[0];}
+
+// ===== SEED =====
+function seed(){
+  if(db.inventory.length)return;
+  db.suppliers=[
+    {id:uid(),name:'කමල්',company:'CIC Agro',phone:'0771234567',products:'Fertilizer, Insecticide',lastOrder:today()},
+    {id:uid(),name:'නිමල්',company:'Hayleys Agro',phone:'0772345678',products:'Seeds, Weedicide',lastOrder:today()},
+  ];
+  db.inventory=[
+    {id:uid(),name:'Urea',cat:'Fertilizer',unit:'50kg bag',stock:40,min:10,cost:4200,label:5000,sell:4800,supplier:db.suppliers[0].id,sold:85},
+    {id:uid(),name:'TSP',cat:'Fertilizer',unit:'50kg bag',stock:22,min:8,cost:4600,label:5500,sell:5200,supplier:db.suppliers[0].id,sold:60},
+    {id:uid(),name:'MOP',cat:'Fertilizer',unit:'50kg bag',stock:15,min:8,cost:4900,label:6000,sell:5600,supplier:db.suppliers[0].id,sold:42},
+    {id:uid(),name:'Glyphosate',cat:'Weedicide',unit:'1L',stock:3,min:10,cost:900,label:1400,sell:1200,supplier:db.suppliers[1].id,sold:70},
+    {id:uid(),name:'Chlorpyrifos',cat:'Insecticide',unit:'500ml',stock:18,min:5,cost:600,label:1000,sell:850,supplier:db.suppliers[0].id,sold:30},
+    {id:uid(),name:'Bg300 වී බීජ',cat:'Seeds',unit:'1kg',stock:50,min:20,cost:220,label:350,sell:320,supplier:db.suppliers[1].id,sold:120},
+    {id:uid(),name:'Mancozeb',cat:'Fungicide',unit:'500g',stock:2,min:5,cost:550,label:900,sell:750,supplier:db.suppliers[0].id,sold:10},
+    {id:uid(),name:'Foliar Spray',cat:'Fertilizer',unit:'1L',stock:12,min:5,cost:800,label:1300,sell:1100,supplier:db.suppliers[1].id,sold:25},
+  ];
+  db.customers=[
+    {id:uid(),name:'සමරසිංහ',phone:'0774561230',area:'ඇල්ල',notes:'Regular'},
+    {id:uid(),name:'පෙරේරා',phone:'0775678901',area:'රාජිගම',notes:''},
+    {id:uid(),name:'සිල්වා',phone:'0776789012',area:'කිරිඇල්ල',notes:'Season'},
+    {id:uid(),name:'ආරියරත්න',phone:'0777890123',area:'ඇල්ල',notes:''},
+  ];
+  const d1=today();
+  const d2=new Date(Date.now()-12*864e5).toISOString().split('T')[0];
+  db.bills=[
+    {id:uid(),num:db.billCounter++,customer:db.customers[0].id,date:d1,payment:'cash',paid:9600,items:[{inv:db.inventory[0].id,qty:2,sell:4800,disc:0,lt:9600}],subtotal:9600,discount:0,total:9600,balance:0,status:'paid'},
+    {id:uid(),num:db.billCounter++,customer:db.customers[1].id,date:d2,payment:'credit',paid:0,items:[{inv:db.inventory[0].id,qty:1,sell:4800,disc:5,lt:4560},{inv:db.inventory[1].id,qty:1,sell:5200,disc:0,lt:5200}],subtotal:10000,discount:240,total:9760,balance:9760,status:'credit'},
+    {id:uid(),num:db.billCounter++,customer:db.customers[2].id,date:d2,payment:'credit',paid:5000,items:[{inv:db.inventory[2].id,qty:3,sell:5600,disc:10,lt:15120}],subtotal:16800,discount:1680,total:15120,balance:10120,status:'partial'},
+    {id:uid(),num:db.billCounter++,customer:db.customers[0].id,date:today(),payment:'cash',paid:3840,items:[{inv:db.inventory[5].id,qty:12,sell:320,disc:0,lt:3840}],subtotal:3840,discount:0,total:3840,balance:0,status:'paid'},
+  ];
+  saveDB();
+}
+
+// ===== NAV =====
+const titles={dashboard:'Dashboard',alerts:'⚠ Alerts - Stock & Expiry',extraincome:'Extra Income',expenses:'Expenses / වියදම්',cashbook:'Cash Book',season:'Season Plan',competitors:'Competitor Prices',feedback:'Customer Feedback',purchaseorders:'Purchase Orders',profitloss:'Profit / Loss',inventory:'Inventory / Stock',bills:'Bills & Invoices',returns:'Returns / ආපසු',customers:'Customers',suppliers:'Suppliers',reports:'Reports',credits:'Credit / ණය'};
+function go(p,el){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('page-title').textContent=titles[p];
+  render(p);
+  if(window.innerWidth<=520)toggleSidebar(false);
+}
+function toggleSidebar(force){
+  const sb=document.getElementById('sidebar');
+  const scrim=document.getElementById('sidebar-scrim');
+  const open = force!==undefined ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open',open);
+  scrim.classList.toggle('show',open);
+}
+function render(p){
+  if(p==='dashboard')renderDash();
+  else if(p==='profitloss')renderPL();
+  else if(p==='inventory')renderInv();
+  else if(p==='bills')renderBills();
+  else if(p==='returns')renderReturns();
+  else if(p==='purchaseorders')renderPOPage();
+  else if(p==='customers')renderCusts();
+  else if(p==='suppliers')renderSups();
+  else if(p==='reports')renderReports();
+  else if(p==='credits')renderCredits();
+  else if(p==='feedback')renderFeedback();
+  else if(p==='expenses')renderExpenses();
+  else if(p==='alerts')renderAlerts();
+  else if(p==='extraincome')renderEI();
+  else if(p==='cashbook')renderCashBook();
+  else if(p==='season')renderSeason();
+  else if(p==='competitors')renderCompetitors();
+}
+
+// ===== MODALS =====
+function openModal(id){
+  if(id==='modal-bill'){
+    initBill();
+    const cs=document.getElementById('cust-search-bill');
+    if(cs)cs.value='';
+    const hid=document.getElementById('bill-cust');
+    if(hid)hid.value='';
+    renderHeldBillsStrip();
+  }
+  if(id==='modal-return')initReturn();
+  if(id==='modal-po')initPO();
+  if(id==='modal-expense'){document.getElementById('exp-date').value=today();}
+  if(id==='modal-extraincome'){document.getElementById('ei-date').value=today();}
+  if(id==='modal-cashentry'){document.getElementById('ce-date').value=today();}
+  if(id==='modal-competitor'){document.getElementById('comp-date').value=today();}
+  if(id==='modal-season'){document.getElementById('sea-start').value=today();}
+  if(id==='modal-feedback'){document.getElementById('fb-date').value=today();document.getElementById('fb-rating').value=0;document.getElementById('rating-label').textContent='Rating select කරන්න';}
+  if(id==='modal-customer'){
+    if(!db.custCounter)db.custCounter=1;
+    document.getElementById('cust-auto-no').textContent='C'+String(db.custCounter).padStart(4,'0');
+  }
+  fillSelects();
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  if(id==='modal-inventory'){
+    editingInvId=null;
+    const h3=document.querySelector('#modal-inventory .modal-header h3');
+    if(h3)h3.textContent='Item / Stock';
+  }
+}
+function notify(m){const n=document.getElementById('notif');n.textContent=m;n.classList.add('show');setTimeout(()=>n.classList.remove('show'),2600);}
+
+// ===== FILL SELECTS =====
+function fillSelects(){
+  // bill-cust is now a hidden field with search
+  const is=document.getElementById('inv-sup');
+  if(is)is.innerHTML='<option value="">-- Supplier --</option>'+db.suppliers.map(s=>`<option value="${s.id}">${s.name} (${s.company})</option>`).join('');
+  const pos=document.getElementById('po-supplier');
+  if(pos)pos.innerHTML='<option value="">-- Supplier --</option>'+db.suppliers.map(s=>`<option value="${s.id}">${s.name} (${s.company})</option>`).join('');
+  const ci=document.getElementById('comp-item');
+  if(ci)ci.innerHTML='<option value="">-- Item --</option>'+db.inventory.map(i=>`<option value="${i.id}">${i.name}</option>`).join('');
+  const fbc=document.getElementById('fb-cust');
+  if(fbc)fbc.innerHTML='<option value="">-- Customer --</option>'+db.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const fbi=document.getElementById('fb-item');
+  if(fbi)fbi.innerHTML='<option value="">-- Item --</option>'+db.inventory.map(i=>`<option value="${i.id}">${i.name}</option>`).join('');
+  const rb=document.getElementById('ret-bill');
+  if(rb)rb.innerHTML='<option value="">-- Bill --</option>'+[...db.bills].sort((a,b)=>b.num-a.num).map(b=>{const c=db.customers.find(x=>x.id===b.customer);return`<option value="${b.id}">#${b.num} - ${c?c.name:'?'} (${b.date})</option>`;}).join('');
+}
+
+// ===== DASHBOARD =====
+function renderDash(){
+  const now=new Date();const mo=now.getMonth();const yr=now.getFullYear();
+  const mb=db.bills.filter(b=>{const d=new Date(b.date);return d.getMonth()===mo&&d.getFullYear()===yr;});
+  document.getElementById('s-rev').textContent='Rs.'+fmt(mb.reduce((a,b)=>a+b.total,0));
+  document.getElementById('s-bills').textContent=mb.length;
+  document.getElementById('s-credit').textContent='Rs.'+fmt(db.bills.reduce((a,b)=>a+b.balance,0));
+  document.getElementById('s-low').textContent=db.inventory.filter(i=>i.stock<=i.min).length;
+
+  // Stock value calculations
+  let stockCost=0, stockSell=0, stockLabel=0;
+  db.inventory.forEach(i=>{
+    const stock=i.stock||0;
+    const bulkQty=i.bulkQty||1;
+    // Cost value
+    stockCost += stock * (i.cost||0);
+    // Sell value (bag price)
+    stockSell += stock * (i.sell||0);
+    // Label value
+    stockLabel += stock * (i.label||i.sell||0);
+    // Also add loose stock value if applicable
+    if(i.soldSmall&&i.smallPrice&&i.bulkQty){
+      // Already counted in bag stock above
+    }
+  });
+  const expectedProfit = stockSell - stockCost;
+
+  const scEl=document.getElementById('s-stock-cost');
+  const ssEl=document.getElementById('s-stock-sell');
+  const slEl=document.getElementById('s-stock-label');
+  const spEl=document.getElementById('s-stock-profit');
+  if(scEl)scEl.textContent='Rs.'+fmt(stockCost);
+  if(ssEl)ssEl.textContent='Rs.'+fmt(stockSell);
+  if(slEl)slEl.textContent='Rs.'+fmt(stockLabel);
+  if(spEl)spEl.textContent='Rs.'+fmt(expectedProfit);
+
+  renderCharts('dash-top','dash-low');
+  // Top customers
+  const custStats=db.customers.map(c=>{
+    const bills=db.bills.filter(b=>b.customer===c.id);
+    return{...c,billCount:bills.length,total:bills.reduce((a,b)=>a+b.total,0),bal:bills.reduce((a,b)=>a+b.balance,0)};
+  }).sort((a,b)=>b.total-a.total);
+  const medals=['🥇','🥈','🥉','4','5','6','7','8'];
+  document.getElementById('dash-topcust').innerHTML=custStats.filter(c=>c.total>0).slice(0,8).map((c,i)=>`<tr><td>${medals[i]||i+1}</td><td><strong>${c.name}</strong><br><span style="font-size:11px;color:var(--muted)">${c.area}</span></td><td>${c.billCount}</td><td style="font-family:var(--mono);font-weight:600;color:var(--g800)">Rs.${fmt(c.total)}</td><td style="font-family:var(--mono);color:${c.bal>0?'var(--r600)':'var(--g800)'}">Rs.${fmt(c.bal)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty-state">Bills නැහැ</td></tr>';
+  const creditCusts=custStats.filter(c=>c.bal>0).sort((a,b)=>b.bal-a.bal);
+  document.getElementById('dash-creditcust').innerHTML=creditCusts.map(c=>`<tr><td><strong>${c.name}</strong></td><td>${c.phone}</td><td style="font-family:var(--mono);font-weight:700;color:var(--r600)">Rs.${fmt(c.bal)}</td></tr>`).join('')||'<tr><td colspan="3" style="text-align:center;padding:16px;color:var(--g800)">ණය නැහැ ✓</td></tr>';
+  const rec=[...db.bills].sort((a,b)=>b.num-a.num).slice(0,7);
+  document.getElementById('dash-bills').innerHTML=rec.map(b=>{
+    const c=b.customer==='walkin'?{name:b.custName||'Walk-in'}:db.customers.find(x=>x.id===b.customer);
+    return`<tr><td><strong>#${b.num}</strong></td><td>${c?c.name:'?'}</td><td>${b.date}</td><td>Rs.${fmt(b.total)}</td><td style="color:var(--r600)">${b.discount>0?'- Rs.'+fmt(b.discount):'-'}</td><td>${b.payment==='cash'?'Cash':'Credit'}</td><td><span class="badge ${b.status==='paid'?'badge-green':b.status==='credit'?'badge-red':'badge-amber'}">${b.status==='paid'?'ගෙවා ඇත':b.status==='credit'?'ණය':'කොටසක්'}</span></td><td><button class="btn btn-wa btn-sm" onclick="showWA('${b.id}')">📱</button></td></tr>`;
+  }).join('')||'<tr><td colspan="8" class="empty-state">Bills නැහැ</td></tr>';
+}
+
+function renderCharts(tid,lid){
+  const sorted=[...db.inventory].sort((a,b)=>(b.sold||0)-(a.sold||0));
+  const top=sorted.slice(0,5),low=sorted.slice(-5).reverse();
+  const mxT=top[0]?top[0].sold||1:1,mxL=Math.max(low[0]?low[0].sold||1:1,1);
+  function bars(items,mx,col){return items.map(i=>`<div class="cbar-row"><div class="cbar-lbl">${i.name}</div><div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(((i.sold||0)/mx)*100)}%;background:${col}">${i.sold||0}</div></div><div class="cbar-val">Rs.${fmt((i.sold||0)*i.sell)}</div></div>`).join('');}
+  document.getElementById(tid).innerHTML=bars(top,mxT,'var(--g800)');
+  document.getElementById(lid).innerHTML=bars(low,mxL,'var(--e500)');
+}
+
+// ===== PROFIT / LOSS =====
+function renderPL(){
+  const mode=document.getElementById('pl-mode').value;
+  const mInp=document.getElementById('pl-month');
+  const fInp=document.getElementById('pl-from');
+  const tInp=document.getElementById('pl-to');
+  mInp.style.display=mode==='monthly'?'':'none';
+  fInp.style.display=tInp.style.display=mode==='custom'?'':'none';
+  if(mode==='monthly'&&!mInp.value){const n=new Date();mInp.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0');}
+
+  let filtered=db.bills;
+  if(mode==='monthly'&&mInp.value){
+    const[yr,mo]=mInp.value.split('-').map(Number);
+    filtered=db.bills.filter(b=>{const d=new Date(b.date);return d.getFullYear()===yr&&d.getMonth()+1===mo;});
+  } else if(mode==='daily'){
+    filtered=db.bills.filter(b=>b.date===today());
+  } else if(mode==='custom'&&fInp.value&&tInp.value){
+    filtered=db.bills.filter(b=>b.date>=fInp.value&&b.date<=tInp.value);
+  }
+
+  const revenue=filtered.reduce((a,b)=>a+b.total,0);
+  const discGiven=filtered.reduce((a,b)=>a+(b.discount||0),0);
+  const cogs=filtered.reduce((a,bill)=>a+bill.items.reduce((s,it)=>{
+    // Use costAtSale if stored, else lookup inventory cost
+    const cost=it.costAtSale!==undefined?it.costAtSale:(()=>{
+      const inv=db.inventory.find(i=>i.id===it.inv);
+      return inv?(inv.cost||0):0;
+    })();
+    // For loose units, qty is in kg/g not bags - adjust
+    const adjQty = (it.unitType==='small'&&it.inv)?(()=>{
+      const inv=db.inventory.find(i=>i.id===it.inv);
+      return inv&&inv.bulkQty>0?it.qty/inv.bulkQty:it.qty;
+    })():(it.unitType==='gram'&&it.inv)?(()=>{
+      const inv=db.inventory.find(i=>i.id===it.inv);
+      return inv&&inv.bulkQty>0?it.qty/(inv.bulkQty*1000):it.qty;
+    })():it.qty;
+    return s+cost*adjQty;
+  },0),0);
+  const grossProfit=revenue-cogs;
+  const returnLoss=db.returns.filter(r=>{const b=db.bills.find(x=>x.id===r.billId);return b&&filtered.includes(b);}).reduce((a,r)=>a+(r.price*r.qty),0);
+  const netProfit=grossProfit-returnLoss;
+  const isPositive=netProfit>=0;
+
+  document.getElementById('pl-content').innerHTML=`
+    <div class="stat-grid-6">
+      <div class="stat-card blue"><div class="lbl">Revenue</div><div class="val">Rs.${fmt(revenue)}</div></div>
+      <div class="stat-card amber"><div class="lbl">COGS (Cost)</div><div class="val">Rs.${fmt(cogs)}</div></div>
+      <div class="stat-card ${isPositive?'green':'red'}"><div class="lbl">Gross Profit</div><div class="val">Rs.${fmt(grossProfit)}</div></div>
+      <div class="stat-card amber"><div class="lbl">Discount දුන්</div><div class="val">Rs.${fmt(discGiven)}</div></div>
+      <div class="stat-card red"><div class="lbl">Return Loss</div><div class="val">Rs.${fmt(returnLoss)}</div></div>
+      <div class="stat-card ${isPositive?'green':'red'}"><div class="lbl">Net Profit</div><div class="val ${isPositive?'':'pl-negative'}">Rs.${fmt(netProfit)}</div></div>
+    </div>
+    <div style="overflow-x:auto">
+    <table><thead><tr><th>දිනය</th><th>Bill#</th><th>Customer</th><th>Revenue</th><th>COGS</th><th>Gross P</th><th>Discount</th><th>Status</th></tr></thead>
+    <tbody>${filtered.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(b=>{
+      const c=db.customers.find(x=>x.id===b.customer);
+      const bc=b.items.reduce((s,it)=>{const inv=db.inventory.find(i=>i.id===it.inv);return s+(inv?(inv.cost||0)*it.qty:0);},0);
+      const gp=b.total-bc;
+      return`<tr><td>${b.date}</td><td>#${b.num}</td><td>${c?c.name:'?'}</td><td>Rs.${fmt(b.total)}</td><td>Rs.${fmt(bc)}</td><td class="${gp>=0?'pl-positive':'pl-negative'}">Rs.${fmt(gp)}</td><td style="color:var(--r600)">${b.discount>0?'- Rs.'+fmt(b.discount):'-'}</td><td><span class="badge ${b.status==='paid'?'badge-green':b.status==='credit'?'badge-red':'badge-amber'}">${b.status==='paid'?'ගෙවා ඇත':b.status==='credit'?'ණය':'කොටසක්'}</span></td></tr>`;
+    }).join('')||'<tr><td colspan="8" class="empty-state">Bills නැහැ</td></tr>'}</tbody></table></div>`;
+
+  // Daily chart for current month
+  const now2=new Date();const yr2=now2.getFullYear();const mo2=now2.getMonth();
+  const daysInMonth=new Date(yr2,mo2+1,0).getDate();
+  const dailyData=[];
+  for(let d=1;d<=daysInMonth;d++){
+    const dStr=yr2+'-'+String(mo2+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const dBills=db.bills.filter(b=>b.date===dStr);
+    const rev=dBills.reduce((a,b)=>a+b.total,0);
+    const cost=dBills.reduce((a,bill)=>a+bill.items.reduce((s,it)=>{const inv=db.inventory.find(i=>i.id===it.inv);return s+(inv?(inv.cost||0)*it.qty:0);},0),0);
+    if(rev>0)dailyData.push({d,rev,profit:rev-cost});
+  }
+  const maxRev=Math.max(...dailyData.map(x=>x.rev),1);
+  document.getElementById('pl-daily-chart').innerHTML=dailyData.length?dailyData.map(x=>`<div class="cbar-row"><div class="cbar-lbl">${x.d} වැනිදා</div><div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(x.rev/maxRev*100)}%;background:var(--blue)">${fmt(x.rev)}</div></div><div class="cbar-val" style="color:${x.profit>=0?'var(--g800)':'var(--r600)'}">P:${fmt(x.profit)}</div></div>`).join(''):'<p style="color:var(--muted);font-size:13px">ඒ දිනයේ Bills නැහැ</p>';
+
+  // Revenue vs Cost chart per item
+  const topItems=[...db.inventory].sort((a,b)=>(b.sold||0)-(a.sold||0)).slice(0,6);
+  const maxItem=Math.max(...topItems.map(i=>i.sell*(i.sold||0)),1);
+  document.getElementById('pl-rev-chart').innerHTML=topItems.map(i=>{
+    const rev2=i.sell*(i.sold||0);const cost2=i.cost*(i.sold||0);const prof2=rev2-cost2;
+    return`<div class="cbar-row"><div class="cbar-lbl">${i.name}</div><div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(rev2/maxItem*100)}%;background:var(--g800)">${fmt(rev2)}</div></div><div class="cbar-val" style="color:var(--purple)">P:${fmt(prof2)}</div></div>`;
+  }).join('');
+}
+
+// ===== INVENTORY =====
+function renderInv(){
+  const sm={};db.suppliers.forEach(s=>sm[s.id]=s.name);
+  const today3mo=new Date();today3mo.setMonth(today3mo.getMonth()+3);
+  const todayStr=today();
+  // Update item count badge
+  const countBadge=document.getElementById('inv-count-badge');
+  if(countBadge)countBadge.textContent=db.inventory.length+' items';
+
+  // Calculate totals for stat cards
+  let totalCostValue=0, totalSellValue=0;
+  db.inventory.forEach(i=>{
+    totalCostValue += i.stock*(i.cost||0);
+    totalSellValue += i.stock*(i.sell||0);
+  });
+  const totalProfit=totalSellValue-totalCostValue;
+  const margin=totalCostValue>0?((totalProfit/totalCostValue)*100):0;
+  const el=id=>document.getElementById(id);
+  if(el('inv-stat-cost'))el('inv-stat-cost').textContent='Rs.'+fmt(totalCostValue);
+  if(el('inv-stat-sell'))el('inv-stat-sell').textContent='Rs.'+fmt(totalSellValue);
+  if(el('inv-stat-profit'))el('inv-stat-profit').textContent='Rs.'+fmt(totalProfit);
+  if(el('inv-stat-margin'))el('inv-stat-margin').textContent=margin.toFixed(1)+'%';
+
+  // Build name groups for FIFO batch detection
+  const nameGroups={};
+  db.inventory.forEach(i=>{if(!nameGroups[i.name])nameGroups[i.name]=[];nameGroups[i.name].push(i.id);});
+
+  document.getElementById('inv-body').innerHTML=db.inventory.map(i=>{
+    const isExpired=i.expiry&&i.expiry<todayStr;
+    const isExpiringSoon=i.expiry&&!isExpired&&new Date(i.expiry)<=today3mo;
+    const isLowStock=i.stock<=i.min;
+    // FIFO: if multiple batches of same name, first entry = oldest = sell first
+    const batchIds=nameGroups[i.name]||[];
+    const isOldestBatch=batchIds.length>1&&batchIds[0]===i.id;
+    const batchNum=batchIds.indexOf(i.id)+1;
+    const rowBg=isExpired?'background:#FEE2E2':isOldestBatch?'background:#FFF3CD;border-left:4px solid #F59E0B':isExpiringSoon?'background:#FEF9C3':isLowStock?'background:#FFF7E8':'';
+    const stockCost=i.stock*(i.cost||0);
+    const stockSell=i.stock*(i.sell||0);
+    const itemProfit=stockSell-stockCost;
+    const itemMargin=i.cost>0?((i.sell-i.cost)/i.cost*100):0;
+    return`<tr style="${rowBg}">
+    <td>
+      ${isOldestBatch?'<span style="font-size:10px;background:#F59E0B;color:#fff;padding:1px 5px;border-radius:3px;margin-right:4px">🔴 FIFO - FIRST</span>':batchIds.length>1?`<span style="font-size:10px;background:#6B7280;color:#fff;padding:1px 5px;border-radius:3px;margin-right:4px">Batch ${batchNum}</span>`:''}
+      <strong>${i.name}</strong>
+      ${isExpired?'<span class="badge badge-red" style="margin-left:4px">⚠ Expired</span>':isExpiringSoon?`<span class="badge badge-amber" style="margin-left:4px">⏰ ${i.expiry}</span>`:''}
+      ${isLowStock?'<span class="badge badge-red" style="margin-left:4px">Low Stock</span>':''}
+    </td>
+    <td><span class="badge badge-blue">${i.cat}</span></td>
+    <td style="font-family:var(--mono);font-weight:600;color:${isLowStock?'var(--r600)':'var(--text)'}">${i.stock}</td>
+    <td>${i.unit}</td>
+    <td><div class="ps">
+      <div class="pt cost"><span class="ptl">Cost</span>Rs.${fmt(i.cost||0)}</div>
+      <div class="pt labp"><span class="ptl">Label</span>Rs.${fmt(i.label||0)}</div>
+      <div class="pt sell"><span class="ptl">📦 Bag</span>Rs.${fmt(i.sell)}/${i.unit||'bag'}</div>
+      ${i.smallPrice?`<div class="pt sell"><span class="ptl">⚖ ${i.smallUnit||'kg'}</span>Rs.${fmt(i.smallPrice)}/${i.smallUnit||'kg'}</div>`:''}
+      ${i.gramPrice?`<div class="pt sell"><span class="ptl">🔬 100g</span>Rs.${fmt(i.gramPrice)}/100g</div>`:''}
+    </div></td>
+    <td style="font-family:var(--mono);font-size:12px">
+      <div style="color:var(--b600)">Cost: Rs.${fmt(stockCost)}</div>
+      <div style="color:var(--g700)">Sell: Rs.${fmt(stockSell)}</div>
+    </td>
+    <td style="font-family:var(--mono);font-size:12px">
+      <div style="font-weight:600;color:${itemProfit>=0?'var(--g700)':'var(--r600)'}">Rs.${fmt(itemProfit)}</div>
+      <div><span class="badge ${itemMargin>=20?'badge-green':itemMargin>=10?'badge-amber':'badge-red'}">${itemMargin.toFixed(1)}%</span></div>
+    </td>
+    <td>${sm[i.supplier]||'-'}</td>
+    <td><span class="badge ${i.stock<=i.min?'badge-red':'badge-green'}">${i.stock<=i.min?'⚠ අඩුයි':'✓ OK'}</span></td>
+    <td style="white-space:nowrap"><button class="btn btn-outline btn-sm" onclick="editInv('${i.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="del('inventory','${i.id}')">Del</button></td>
+  </tr>`;}).join('')||'<tr><td colspan="10" class="empty-state">Items නැහැ</td></tr>';
+}
+
+function saveInv(){
+  const name=document.getElementById('inv-name').value.trim();
+  if(!name){alert('Item නම ඇතුළු කරන්න');return;}
+  const cat=document.getElementById('inv-cat').value;
+  if(!cat){alert('Category තෝරන්න');return;}
+  const bulkQty=parseFloat(document.getElementById('inv-bulk-qty').value)||0;
+  const sellPrice=parseFloat(document.getElementById('inv-sell').value)||0;
+  const smallPrice=parseFloat(document.getElementById('inv-small-price').value)||0;
+  const gramPrice=parseFloat(document.getElementById('inv-gram-price').value)||0;
+
+  if(editingInvId){
+    // UPDATE existing item
+    const idx=db.inventory.findIndex(x=>x.id===editingInvId);
+    if(idx>=0){
+      const existing=db.inventory[idx];
+      db.inventory[idx]={
+        ...existing,
+        name,cat,
+        unit:document.getElementById('inv-unit').value,
+        smallUnit:document.getElementById('inv-small-unit').value||'kg',
+        bulkQty,
+        stock:parseFloat(document.getElementById('inv-stock').value)||0,
+        min:parseFloat(document.getElementById('inv-min').value)||5,
+        cost:parseFloat(document.getElementById('inv-cost').value)||0,
+        label:parseFloat(document.getElementById('inv-label').value)||0,
+        sell:sellPrice, smallPrice, gramPrice,
+        supplier:document.getElementById('inv-sup').value,
+        expiry:document.getElementById('inv-expiry').value||''
+      };
+      fbSaveItem('inventory',db.inventory[idx]);
+    }
+    editingInvId=null;
+    const h3=document.querySelector('#modal-inventory .modal-header h3');
+    if(h3)h3.textContent='Item / Stock';
+  } else {
+    // CREATE new item
+    const item={id:uid(),name,cat,
+      unit:document.getElementById('inv-unit').value,
+      smallUnit:document.getElementById('inv-small-unit').value||'kg',
+      bulkQty,
+      stock:parseFloat(document.getElementById('inv-stock').value)||0,
+      min:parseFloat(document.getElementById('inv-min').value)||5,
+      cost:parseFloat(document.getElementById('inv-cost').value)||0,
+      label:parseFloat(document.getElementById('inv-label').value)||0,
+      sell:sellPrice, smallPrice, gramPrice,
+      supplier:document.getElementById('inv-sup').value,
+      expiry:document.getElementById('inv-expiry').value||'',
+      sold:0,soldSmall:0,soldGram:0};
+    db.inventory.push(item);
+    fbSaveItem('inventory',item);
+  }
+
+  saveDB();renderInv();fillSelects();closeModal('modal-inventory');
+  notify(editingInvId?'Item update කළා! ✓':'Item save කළා! ✓');
+  ['inv-name','inv-unit','inv-bulk-qty','inv-gram-price','inv-stock','inv-min','inv-cost','inv-label','inv-sell','inv-small-price','inv-expiry'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('inv-small-unit').value='kg';
+  document.getElementById('inv-cat').value='';
+  document.getElementById('inv-sup').value='';
+}
+
+let editingInvId = null;
+
+function editInv(id){
+  const i=db.inventory.find(x=>x.id===id);if(!i)return;
+  editingInvId=id;
+  document.getElementById('inv-name').value=i.name;
+  document.getElementById('inv-cat').value=i.cat;
+  document.getElementById('inv-unit').value=i.unit;
+  document.getElementById('inv-stock').value=i.stock;
+  document.getElementById('inv-min').value=i.min;
+  document.getElementById('inv-cost').value=i.cost||0;
+  document.getElementById('inv-label').value=i.label||0;
+  document.getElementById('inv-sell').value=i.sell;
+  document.getElementById('inv-sup').value=i.supplier||'';
+  document.getElementById('inv-small-unit').value=i.smallUnit||'kg';
+  document.getElementById('inv-bulk-qty').value=i.bulkQty||0;
+  document.getElementById('inv-small-price').value=i.smallPrice||0;
+  document.getElementById('inv-gram-price').value=i.gramPrice||0;
+  document.getElementById('inv-expiry').value=i.expiry||'';
+  // Update modal title to show editing mode
+  const h3=document.querySelector('#modal-inventory .modal-header h3');
+  if(h3)h3.textContent='Item Edit කරන්න';
+  document.getElementById('modal-inventory').classList.add('open');
+}
+
+// del() is defined later (async, Firebase-synced version)
+
+// ===== BILLS =====
+// ===== HOLD / RESUME BILLS (multiple parallel bills) =====
+let heldBills=[];
+
+function holdBill(){
+  const custId=document.getElementById('bill-cust').value;
+  const custName=document.getElementById('cust-search-bill').value;
+  const validRows=billRows.filter(r=>r.inv||r.customName);
+  if(!validRows.length){alert('Hold කරන්න items නැහැ - item එකක්වත් add කරන්න');return;}
+  heldBills.push({
+    id:uid(),
+    custId,custName,
+    date:document.getElementById('bill-date').value,
+    pay:document.getElementById('bill-pay').value,
+    paid:document.getElementById('bill-paid').value,
+    rows:JSON.parse(JSON.stringify(billRows)),
+    heldAt:new Date().toLocaleTimeString('si-LK',{hour:'2-digit',minute:'2-digit'})
+  });
+  notify('⏸ Bill hold කළා - අලුත් Bill එකක් start කරන්න');
+  initBill();
+  document.getElementById('cust-search-bill').value='';
+  document.getElementById('bill-cust').value='';
+  renderHeldBillsStrip();
+}
+
+function resumeHeldBill(holdId){
+  const h=heldBills.find(x=>x.id===holdId);
+  if(!h)return;
+  billRows=JSON.parse(JSON.stringify(h.rows));
+  document.getElementById('bill-cust').value=h.custId;
+  document.getElementById('cust-search-bill').value=h.custName;
+  document.getElementById('bill-date').value=h.date;
+  document.getElementById('bill-pay').value=h.pay;
+  document.getElementById('bill-paid').value=h.paid;
+  heldBills=heldBills.filter(x=>x.id!==holdId);
+  renderRows();
+  renderHeldBillsStrip();
+  notify('Bill resume කළා ▶');
+}
+
+function discardHeldBill(holdId,ev){
+  if(ev)ev.stopPropagation();
+  if(!confirm('මේ hold bill එක ඉවත් කරන්නද?'))return;
+  heldBills=heldBills.filter(x=>x.id!==holdId);
+  renderHeldBillsStrip();
+}
+
+function renderHeldBillsStrip(){
+  const strip=document.getElementById('held-bills-strip');
+  const list=document.getElementById('held-bills-list');
+  if(!strip||!list)return;
+  if(!heldBills.length){strip.style.display='none';return;}
+  strip.style.display='block';
+  list.innerHTML=heldBills.map(h=>{
+    const total=h.rows.reduce((a,r)=>a+(r.qty*(r.sell||0)*(1-(r.disc||0)/100)),0);
+    return`<div onclick="resumeHeldBill('${h.id}')" style="background:#fff;border:1px solid var(--amber,#C4622D);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:8px">
+      <span>👤 ${h.custName||'Customer'} <span style="color:var(--muted)">· ${h.heldAt}</span> <strong style="font-family:var(--mono)">Rs.${fmt(total)}</strong></span>
+      <span onclick="discardHeldBill('${h.id}',event)" style="color:var(--r600);font-weight:700;padding:0 2px">✕</span>
+    </div>`;
+  }).join('');
+}
+
+function initBill(){
+  billRows=[{inv:'',qty:1,sell:0,disc:0,lt:0}];
+  document.getElementById('bill-date').value=today();
+  document.getElementById('bill-paid').value='0';
+  renderRows();
+}
+
+function addRow(){billRows.push({inv:'',qty:1,sell:0,disc:0,lt:0});renderRows();}
+function removeRow(i){billRows.splice(i,1);renderRows();}
+
+function renderRows(){
+  const billRowsEl=document.getElementById('bill-rows');billRowsEl.innerHTML=billRows.map((row,i)=>{
+    const inv=db.inventory.find(x=>x.id===row.inv);
+    const lt=row.qty*(row.sell||0)*(1-(row.disc||0)/100);
+    const hasSmall=inv&&inv.bulkQty>0;
+    const unitType=row.unitType||'bulk';
+    return`<div class="bill-row">
+      <div style="position:relative">
+        <input type="text"
+          id="isearch_${i}"
+          placeholder="🔍 Item නම type කරන්න..."
+          value="${inv?inv.name:''}"
+          oninput="iSearch(${i},this.value)"
+          onclick="iSearch(${i},this.value)"
+          autocomplete="off"
+          style="font-size:12px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-family:var(--sans);width:100%;outline:none">
+        <div id="ilist_${i}" style="display:none"></div>
+        ${hasSmall?`<div style="display:flex;gap:3px;margin-top:4px">
+          <button type="button" onclick="switchUnit(${i},'bulk')" style="flex:1;padding:3px;font-size:10px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:${unitType==='bulk'?'var(--g700)':'#fff'};color:${unitType==='bulk'?'#fff':'var(--text)'}">📦 ${inv.unit||'Bag'}</button>
+          <button type="button" onclick="switchUnit(${i},'small')" style="flex:1;padding:3px;font-size:10px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:${unitType==='small'?'var(--b600)':'#fff'};color:${unitType==='small'?'#fff':'var(--text)'}">⚖ ${inv.smallUnit||'kg'}</button>
+          ${inv.gramPrice?`<button type="button" onclick="switchUnit(${i},'gram')" style="flex:1;padding:3px;font-size:10px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:${unitType==='gram'?'var(--p600)':'#fff'};color:${unitType==='gram'?'#fff':'var(--text)'}">🔬 g</button>`:''}
+        </div>`:''}
+      </div>
+      <input type="number" value="${row.qty}" min="0.1" step="${unitType==='gram'?50:unitType==='small'?0.5:1}" onchange="billRows[${i}].qty=parseFloat(this.value)||1;updRow(${i})">
+      <input type="number" value="${inv?inv.label:0}" readonly style="background:var(--b100);color:#185FA5">
+      <input type="number" value="${inv?inv.cost:0}" readonly style="background:#ffecd1;color:#854F0B">
+      <input type="number" data-role="sell" value="${row.sell}" onchange="billRows[${i}].sell=parseFloat(this.value)||0;updRow(${i})" placeholder="${row.customName?'මිල':''}">
+      <input type="number" value="${row.disc}" min="0" max="100" onchange="billRows[${i}].disc=parseFloat(this.value)||0;updRow(${i})">
+      <div style="font-size:12px;font-family:var(--mono);font-weight:600;color:var(--g800);text-align:right;padding-right:4px">Rs.${fmt(lt)}</div>
+      <button onclick="removeRow(${i})" style="background:none;border:none;color:var(--r600);cursor:pointer;font-size:17px;padding:0 3px">✕</button>
+    </div>`;
+  }).join('');
+  calcTotal();
+}
+
+function pickItem(i,invId){
+  const inv=db.inventory.find(x=>x.id===invId);
+  if(inv){billRows[i].inv=invId;billRows[i].sell=inv.sell;billRows[i].disc=0;billRows[i].unitType='bulk';}
+  renderRows();
+}
+
+function switchUnit(i,type){
+  const inv=db.inventory.find(x=>x.id===billRows[i].inv);
+  if(!inv)return;
+  billRows[i].unitType=type;
+  if(type==='bulk'){
+    billRows[i].sell=inv.sell;
+    billRows[i].qty=1;
+  } else if(type==='small'){
+    billRows[i].sell=inv.smallPrice||Math.round(inv.sell/(inv.bulkQty||1));
+    billRows[i].qty=1;
+  } else if(type==='gram'){
+    billRows[i].sell=inv.gramPrice||0;
+    billRows[i].qty=100;
+  }
+  renderRows();
+}
+
+function updRow(i){
+  billRows[i].lt=billRows[i].qty*(billRows[i].sell||0)*(1-(billRows[i].disc||0)/100);
+  renderRows();
+}
+
+function calcTotal(){
+  let labelTotal=0, sellSubtotal=0, extraDisc=0;
+  billRows.forEach(r=>{
+    const inv=db.inventory.find(x=>x.id===r.inv);
+    const qty=r.qty||0;
+    const sell=r.sell||0;
+    const discPct=(r.disc||0)/100;
+    // Label price - use item label if available, else sell price
+    const labelPx=inv&&inv.label&&inv.label>0?inv.label:sell;
+    labelTotal += qty * labelPx;
+    sellSubtotal += qty * sell;
+    extraDisc += qty * sell * discPct;
+  });
+  const labelDiscount = Math.max(0, labelTotal - sellSubtotal);
+  const afterExtraDisc = sellSubtotal - extraDisc;
+  const paid = parseFloat(document.getElementById('bill-paid')?.value)||0;
+  const bal = Math.max(afterExtraDisc - paid, 0);
+
+  const ltEl=document.getElementById('bt-label-total');
+  const ldEl=document.getElementById('bt-label-disc');
+  if(ltEl)ltEl.textContent='Rs.'+fmt(labelTotal);
+  if(ldEl)ldEl.textContent='- Rs.'+fmt(labelDiscount);
+  document.getElementById('bt-sub').textContent='Rs.'+fmt(sellSubtotal);
+  document.getElementById('bt-disc').textContent='- Rs.'+fmt(extraDisc);
+  document.getElementById('bt-aft').textContent='Rs.'+fmt(afterExtraDisc);
+  document.getElementById('bt-paid').textContent='Rs.'+fmt(paid);
+  document.getElementById('bt-bal').textContent='Rs.'+fmt(bal);
+}
+
+async function saveBill(){
+  const custId=document.getElementById('bill-cust').value||'walkin';
+  const custNameVal=document.getElementById('cust-search-bill')?.value||'Walk-in Customer';
+  const valid=billRows.filter(r=>(r.inv||r.customName)&&r.qty>0&&r.sell>0);
+  if(!valid.length){alert('Item add කරන්න - item select කරන්න (හෝ අලුත් item නමක් + මිලක් දාන්න)');return;}
+  const sub=valid.reduce((a,r)=>a+r.qty*(r.sell||0),0);
+  const disc=valid.reduce((a,r)=>a+r.qty*(r.sell||0)*(r.disc||0)/100,0);
+  const total=Math.round(sub-disc);
+  const pay=document.getElementById('bill-pay').value;
+  const paid=pay==='cash'?total:(parseFloat(document.getElementById('bill-paid').value)||0);
+  const balance=Math.max(total-paid,0);
+  const status=balance===0?'paid':paid>0?'partial':'credit';
+
+  // Stock deduction
+  valid.forEach(r=>{
+    const inv=db.inventory.find(i=>i.id===r.inv);
+    if(inv){
+      if(r.unitType==='small'&&inv.bulkQty>0){
+        inv.stock=Math.max(0,inv.stock-r.qty/inv.bulkQty);
+        inv.soldSmall=(inv.soldSmall||0)+r.qty;
+      } else if(r.unitType==='gram'&&inv.bulkQty>0){
+        inv.stock=Math.max(0,inv.stock-r.qty/(inv.bulkQty*1000));
+        inv.soldGram=(inv.soldGram||0)+r.qty;
+      } else {
+        inv.stock=Math.max(0,inv.stock-r.qty);
+        inv.sold=(inv.sold||0)+r.qty;
+      }
+      fbSaveItem('inventory',inv);
+    }
+  });
+
+  const custName2=custId==='walkin'?custNameVal:(db.customers.find(x=>x.id===custId)?.name||custNameVal);
+  const bill={id:uid(),num:db.billCounter++,customer:custId,custName:custName2,
+    date:document.getElementById('bill-date').value,payment:pay,paid,
+    items:valid.map(r=>{
+      const inv=db.inventory.find(i=>i.id===r.inv);
+      const costAtSale=inv?(inv.cost||0):0; // store cost at time of sale
+      return {...r,customName:r.customName||'',
+        costAtSale, // used for accurate COGS
+        lt:Math.round(r.qty*(r.sell||0)*(1-(r.disc||0)/100))};
+    }),
+    subtotal:sub,discount:Math.round(disc),total,balance,status};
+
+  db.bills.push(bill);
+  saveDB(); // Save locally first (immediate)
+
+  // Sync to Firebase  
+  try{
+    await fbSaveItem('bills',bill);
+    if(fbEnabled)await fbSet('meta','counters',{billCounter:db.billCounter,returnCounter:db.returnCounter||1,poCounter:db.poCounter||1});
+  }catch(e){
+    console.error('Firebase bill sync error:',e);
+    notify('⚠ Bill locally saved. Firebase sync failed - check connection.');
+  }
+
+  renderBills();
+  closeModal('modal-bill');
+  notify('Bill #'+bill.num+' සාදා ගත්තා! ✓');
+  // Reset bill form
+  billRows=[{inv:'',qty:1,sell:0,disc:0,lt:0,unitType:'bulk'}];
+}
+
+function renderBills(){
+  document.getElementById('bills-body').innerHTML=[...db.bills].sort((a,b)=>b.num-a.num).map(b=>{
+    const c=b.customer==='walkin'?{name:b.custName||'Walk-in'}:db.customers.find(x=>x.id===b.customer);
+    return`<tr>
+      <td><strong>#${b.num}</strong></td>
+      <td>${c?c.name:'?'}</td>
+      <td>${b.date}</td>
+      <td>${b.items.length}</td>
+      <td style="font-family:var(--mono)">Rs.${fmt(b.total)}</td>
+      <td style="font-family:var(--mono);font-weight:600;color:${b.paid>0?'var(--g700)':'var(--muted)'}">Rs.${fmt(b.paid)}</td>
+      <td style="font-family:var(--mono);font-weight:700;color:${b.balance>0?'var(--r600)':'var(--g700)'}">
+        ${b.balance>0?'Rs.'+fmt(b.balance):'<span class="badge badge-green">✓ ගෙවා ඇත</span>'}
+      </td>
+      <td><span class="badge ${b.status==='paid'?'badge-green':b.status==='credit'?'badge-red':'badge-amber'}">${b.status==='paid'?'ගෙවා ඇත':b.status==='credit'?'ණය':'කොටසක්'}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-wa btn-sm" onclick="showWA('${b.id}')">📱 WA</button>
+        <button class="btn btn-danger btn-sm" onclick="del('bills','${b.id}')">Del</button>
+      </td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="9" class="empty-state">Bills නැහැ</td></tr>';
+}
+
+// ===== WHATSAPP =====
+function showWA(billId){
+  const b=db.bills.find(x=>x.id===billId);if(!b)return;
+  const c=db.customers.find(x=>x.id===b.customer);
+  let msg='🌿 *Lanka Stores*\n';
+  msg+='━━━━━━━━━━━━━━━━━━━━\n';
+  msg+=`📄 *BILL #${b.num}*\n`;
+  msg+=`📅 දිනය: ${b.date}\n`;
+  msg+=`👤 ${c?c.name:'?'}${c&&c.area?' - '+c.area:''}\n`;
+  msg+='━━━━━━━━━━━━━━━━━━━━\n';
+  b.items.forEach(it=>{
+    const inv=db.inventory.find(i=>i.id===it.inv);
+    const name=inv?inv.name:(it.customName||'Item');
+    const unitLabel=it.unitType==='gram'?'g':it.unitType==='small'?(inv?inv.smallUnit:'kg'):(inv?inv.unit:'bag');
+    msg+=`• *${name}*\n`;
+    msg+=`  ${it.qty} ${unitLabel} × Rs.${fmt(it.sell)}`;
+    if(it.disc>0)msg+=` (-${it.disc}%)`;
+    msg+=` = *Rs.${fmt(it.lt)}*\n`;
+  });
+  msg+='━━━━━━━━━━━━━━━━━━━━\n';
+  // Calculate label total for discount display
+  let labelTotalWA=0;
+  b.items.forEach(it=>{
+    const inv=db.inventory.find(i=>i.id===it.inv);
+    const lp=inv&&inv.label&&inv.label>0?inv.label:it.sell;
+    labelTotalWA+=it.qty*lp;
+  });
+  const labelDiscWA=Math.max(0,labelTotalWA-b.total);
+  if(labelTotalWA>b.total){
+    msg+=`🏷️ Label Price   : Rs.${fmt(labelTotalWA)}\n`;
+    msg+=`🎁 Discount       : -Rs.${fmt(labelDiscWA)}\n`;
+    msg+='─────────────────────\n';
+  }
+  msg+=`💰 *ගෙවිය යුතු    : Rs.${fmt(b.total)}*\n`;
+  if(b.status==='paid'){
+    msg+=`✅ *ගෙවා අවසන්!*\n`;
+  } else {
+    msg+=`💳 ගෙවූ           : Rs.${fmt(b.paid)}\n`;
+    msg+=`⚠️ *ඉතිරි ශේෂය    : Rs.${fmt(b.balance)}*\n`;
+  }
+  msg+='━━━━━━━━━━━━━━━━━━━━\n';
+  msg+=`📞 07X XXX XXXX\nස්තූතියි! 🙏`;
+  document.getElementById('wa-pre').textContent=msg;
+  const phone=c&&c.phone?c.phone.replace(/\D/g,'').replace(/^0/,'94'):'';
+  document.getElementById('wa-link').href=`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  document.getElementById('modal-wa').classList.add('open');
+}
+
+function copyWA(){
+  const txt=document.getElementById('wa-pre').textContent;
+  navigator.clipboard.writeText(txt).then(()=>notify('Copied! WhatsApp ට paste කරන්න')).catch(()=>{
+    const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);notify('Copied!');
+  });
+}
+
+// ===== RETURNS =====
+function initReturn(){
+  document.getElementById('ret-item').innerHTML='<option value="">-- Item --</option>';
+  document.getElementById('ret-qty').value='1';
+  document.getElementById('ret-price').value='';
+  document.getElementById('ret-reason').value='';
+  document.getElementById('ret-info').style.display='none';
+}
+
+function loadReturnBill(){
+  const billId=document.getElementById('ret-bill').value;
+  const b=db.bills.find(x=>x.id===billId);
+  const sel=document.getElementById('ret-item');
+  if(!b){sel.innerHTML='<option value="">-- Item --</option>';return;}
+  sel.innerHTML='<option value="">-- Item --</option>'+b.items.map((it,idx)=>{
+    const inv=db.inventory.find(i=>i.id===it.inv);
+    return`<option value="${idx}">${inv?inv.name:(it.customName||'Item')} (qty:${it.qty}, Rs.${fmt(it.sell)})</option>`;
+  }).join('');
+  sel.onchange=function(){
+    const idx=parseInt(this.value);if(isNaN(idx))return;
+    const it=b.items[idx];
+    document.getElementById('ret-price').value=it.sell||0;
+    const info=document.getElementById('ret-info');
+    info.style.display='block';
+    const inv=db.inventory.find(i=>i.id===it.inv);
+    info.textContent=`Item: ${inv?inv.name:(it.customName||'?')} | Bill Qty: ${it.qty} | Sell Price: Rs.${fmt(it.sell)} | Current Stock: ${inv?inv.stock:0}`;
+  };
+}
+
+async function saveReturn(){
+  const billId=document.getElementById('ret-bill').value;
+  const itemIdx=parseInt(document.getElementById('ret-item').value);
+  const qty=parseFloat(document.getElementById('ret-qty').value)||0;
+  const price=parseFloat(document.getElementById('ret-price').value)||0;
+  const reason=document.getElementById('ret-reason').value.trim();
+  if(!billId){alert('Bill select කරන්න');return;}
+  if(isNaN(itemIdx)){alert('Item select කරන්න');return;}
+  if(qty<=0){alert('Qty ඇතුළු කරන්න');return;}
+  const b=db.bills.find(x=>x.id===billId);
+  if(!b)return;
+  const it=b.items[itemIdx];
+  const inv=db.inventory.find(i=>i.id===it.inv);
+  if(inv){inv.stock+=qty;fbSaveItem('inventory',inv);}
+  const ret={id:uid(),num:db.returnCounter++,billId,billNum:b.num,
+    itemInv:it.inv,itemName:inv?inv.name:(it.customName||'?'),
+    qty,price,reason,date:today(),stockAdded:qty};
+  db.returns.push(ret);
+  await fbSaveItem('returns',ret);
+  saveDB();renderReturns();closeModal('modal-return');
+  notify(`Return ලියාපදිංචි! Stock +${qty} එකතු කළා. ✓`);
+}
+
+function renderReturns(){
+  document.getElementById('returns-body').innerHTML=[...db.returns].sort((a,b)=>b.num-a.num).map(r=>{
+    const b=db.bills.find(x=>x.id===r.billId);
+    const c=b?db.customers.find(x=>x.id===b.customer):null;
+    return`<tr><td><strong>R#${r.num}</strong></td><td>#${r.billNum}</td><td>${c?c.name:'?'}</td><td>${r.itemName}</td><td>${r.qty}</td><td>Rs.${fmt(r.price)}</td><td>${r.reason||'-'}</td><td>${r.date}</td><td><span class="badge badge-green">+${r.stockAdded} stock</span></td></tr>`;
+  }).join('')||'<tr><td colspan="9" class="empty-state">Returns නැහැ</td></tr>';
+}
+
+function renderPOPage(){
+  const pos=db.purchaseOrders||[];
+  document.getElementById('po-stat-total').textContent=pos.length;
+  document.getElementById('po-stat-pending').textContent=pos.filter(p=>p.status==='ordered').length;
+  document.getElementById('po-stat-received').textContent=pos.filter(p=>p.status==='received').length;
+  document.getElementById('po-stat-value').textContent='Rs.'+fmt(pos.reduce((a,p)=>a+p.total,0));
+  renderPurchaseOrders();
+}
+
+// ===== CUSTOMERS =====
+function saveCust(){
+  const name=document.getElementById('cn').value.trim();
+  if(!name){alert('නම ඇතුළු කරන්න');return;}
+  if(!db.custCounter)db.custCounter=1;
+  const custNo='C'+String(db.custCounter++).padStart(4,'0');
+  const cust={id:uid(),custNo,name,phone:document.getElementById('cp').value,area:document.getElementById('ca').value,address:document.getElementById('cadr').value,notes:document.getElementById('cno').value};
+  db.customers.push(cust);
+  fbSaveItem('customers',cust);
+  saveDB();renderCusts();fillSelects();closeModal('modal-customer');notify('Customer save! ('+custNo+')');
+  ['cn','cp','ca','cadr','cno'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function renderCusts(){
+  document.getElementById('cust-body').innerHTML=db.customers.map(c=>{
+    const bills=db.bills.filter(b=>b.customer===c.id);
+    const total=bills.reduce((a,b)=>a+b.total,0);
+    const bal=bills.reduce((a,b)=>a+b.balance,0);
+    return`<tr><td><span class="badge badge-blue" style="font-family:var(--mono)">${c.custNo||'-'}</span></td><td><strong>${c.name}</strong>${c.address?`<br><span style="font-size:11px;color:var(--muted)">${c.address}</span>`:''}${c.notes?`<br><span style="font-size:11px;color:var(--muted)">${c.notes}</span>`:''}</td><td>${c.phone}</td><td>${c.area}</td><td style="font-family:var(--mono)">Rs.${fmt(total)}</td><td style="font-family:var(--mono);color:${bal>0?'var(--r600)':'var(--g800)'};font-weight:600">Rs.${fmt(bal)}</td><td><button class="btn btn-danger btn-sm" onclick="del('customers','${c.id}')">Del</button></td></tr>`;
+  }).join('')||'<tr><td colspan="7" class="empty-state">Customers නැහැ</td></tr>';
+}
+
+// ===== SUPPLIERS =====
+async function saveSup(){
+  const name=document.getElementById('sn').value.trim();
+  if(!name){alert('නම ඇතුළු කරන්න');return;}
+  const sup={id:uid(),name,
+    company:document.getElementById('sc').value,
+    phone:document.getElementById('sph').value,
+    products:document.getElementById('spr').value,
+    lastOrder:today()};
+  db.suppliers.push(sup);
+  fbSaveItem('suppliers',sup);
+  saveDB();fillSelects();renderSups();closeModal('modal-supplier');
+  notify('Supplier save! ✓');
+  ['sn','sc','sph','spr'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function renderSups(){
+  document.getElementById('sup-body').innerHTML=db.suppliers.map(s=>`<tr><td><strong>${s.name}</strong></td><td>${s.company}</td><td>${s.phone}</td><td><span class="badge badge-blue">${s.products}</span></td><td>${s.lastOrder||'-'}</td><td><button class="btn btn-danger btn-sm" onclick="del('suppliers','${s.id}')">Del</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty-state">Suppliers නැහැ</td></tr>';
+}
+
+// ===== REPORTS =====
+function renderProfitTable(){
+  const sort = document.getElementById('profit-sort')?.value || 'profit-desc';
+  const items = db.inventory.map(i => {
+    const cost = i.cost || 0;
+    const sell = i.sell || 0;
+    const profit = sell - cost;
+    const pct = cost > 0 ? Math.round((profit/cost)*100) : 0;
+    const totalProfit = profit * (i.sold || 0);
+    return {...i, profit, pct, totalProfit};
+  });
+  // Sort
+  items.sort((a,b) => {
+    if(sort==='profit-desc') return b.profit - a.profit;
+    if(sort==='profit-asc') return a.profit - b.profit;
+    if(sort==='pct-desc') return b.pct - a.pct;
+    if(sort==='pct-asc') return a.pct - b.pct;
+    return 0;
+  });
+  const maxProfit = Math.max(...items.map(i=>Math.abs(i.profit)),1);
+  document.getElementById('profit-table-body').innerHTML = items.map((i,idx) => {
+    const isGood = i.pct >= 20;
+    const isMid = i.pct >= 10 && i.pct < 20;
+    const isLow = i.pct < 10;
+    const barW = Math.round((Math.abs(i.profit)/maxProfit)*100);
+    const barColor = isGood ? 'var(--g800)' : isMid ? 'var(--e500)' : 'var(--r600)';
+    return `<tr>
+      <td><strong>${i.name}</strong></td>
+      <td><span class="badge badge-blue">${i.cat}</span></td>
+      <td style="font-family:var(--mono)">Rs.${fmt(i.cost||0)}</td>
+      <td style="font-family:var(--mono)">Rs.${fmt(i.sell)}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:60px;height:14px;background:var(--n100);border-radius:3px;overflow:hidden">
+            <div style="width:${barW}%;height:100%;background:${barColor};border-radius:3px"></div>
+          </div>
+          <span style="font-family:var(--mono);font-weight:600;color:${i.profit>=0?'var(--g800)':'var(--r600)'}">
+            ${i.profit>=0?'+':''}Rs.${fmt(i.profit)}
+          </span>
+        </div>
+      </td>
+      <td>
+        <span style="font-family:var(--mono);font-weight:700;font-size:15px;color:${barColor}">
+          ${i.pct>=0?'+':''}${i.pct}%
+        </span>
+      </td>
+      <td style="font-family:var(--mono)">${i.sold||0} ${i.unit}</td>
+      <td style="font-family:var(--mono);font-weight:600;color:${i.totalProfit>=0?'var(--g800)':'var(--r600)'}">
+        ${i.totalProfit>=0?'+':''}Rs.${fmt(i.totalProfit)}
+      </td>
+      <td>
+        <span class="badge ${isGood?'badge-green':isMid?'badge-amber':'badge-red'}">
+          ${isGood?'✓ හොඳ':isMid?'⚠ මධ්‍යම':'✗ අඩු'}
+        </span>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" class="empty-state">Items නැහැ</td></tr>';
+}
+
+function downloadProfitPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  doc.setFontSize(16);doc.text('Lanka Stores - Profit Analysis',14,18);
+  doc.setFontSize(10);doc.text('Date: '+today(),14,26);
+  const sort = document.getElementById('profit-sort')?.value || 'profit-desc';
+  const items = db.inventory.map(i=>{
+    const profit=(i.sell||0)-(i.cost||0);
+    const pct=i.cost>0?Math.round((profit/i.cost)*100):0;
+    return{...i,profit,pct,totalProfit:profit*(i.sold||0)};
+  }).sort((a,b)=>sort.includes('asc')?a.profit-b.profit:b.profit-a.profit);
+  const rows=items.map(i=>[
+    i.name,i.cat,
+    'Rs.'+fmt(i.cost||0),
+    'Rs.'+fmt(i.sell),
+    (i.profit>=0?'+':'')+' Rs.'+fmt(i.profit),
+    (i.pct>=0?'+':'')+i.pct+'%',
+    (i.sold||0)+' '+i.unit,
+    (i.totalProfit>=0?'+':'')+' Rs.'+fmt(i.totalProfit),
+    i.pct>=20?'හොඳ':i.pct>=10?'මධ්‍යම':'අඩු'
+  ]);
+  doc.autoTable({
+    startY:32,
+    head:[['Item','Category','Cost','Sell','Profit(Rs)','Profit%','Sold','Total Profit','Status']],
+    body:rows,
+    styles:{fontSize:8},
+    headStyles:{fillColor:[15,110,86]},
+    didParseCell:function(data){
+      if(data.section==='body'&&data.column.index===5){
+        const pct=parseInt(data.cell.text[0]);
+        if(pct>=20)data.cell.styles.textColor=[15,110,86];
+        else if(pct>=10)data.cell.styles.textColor=[160,100,0];
+        else data.cell.styles.textColor=[180,0,0];
+      }
+    }
+  });
+  doc.save('profit_analysis_'+today()+'.pdf');
+  notify('Profit Analysis PDF downloaded!');
+}
+
+function renderReports(){
+  const now=new Date();const mo=now.getMonth();const yr=now.getFullYear();
+  const mb=db.bills.filter(b=>{const d=new Date(b.date);return d.getMonth()===mo&&d.getFullYear()===yr;});
+  const cash=mb.filter(b=>b.payment==='cash').reduce((a,b)=>a+b.total,0);
+  const cp=db.bills.reduce((a,b)=>a+b.balance,0);
+  const cost=mb.reduce((a,bill)=>a+bill.items.reduce((s,it)=>{const inv=db.inventory.find(i=>i.id===it.inv);return s+(inv?(inv.cost||0)*it.qty:0);},0),0);
+  const rev=mb.reduce((a,b)=>a+b.total,0);
+  document.getElementById('r-cash').textContent='Rs.'+fmt(cash);
+  document.getElementById('r-cred').textContent='Rs.'+fmt(cp);
+  document.getElementById('r-cost').textContent='Rs.'+fmt(cost);
+  document.getElementById('r-profit').textContent='Rs.'+fmt(rev-cost);
+  renderCharts('rep-top','rep-low');
+  renderProfitTable();
+  renderProfitTable();
+  document.getElementById('rep-cust').innerHTML=db.customers.map(c=>{
+    const bills=db.bills.filter(b=>b.customer===c.id);
+    const total=bills.reduce((a,b)=>a+b.total,0);
+    const cash2=bills.filter(b=>b.payment==='cash').reduce((a,b)=>a+b.total,0);
+    const cred=bills.filter(b=>b.payment==='credit').reduce((a,b)=>a+b.total,0);
+    const bal=bills.reduce((a,b)=>a+b.balance,0);
+    return`<tr><td><strong>${c.name}</strong><br><span style="font-size:11px;color:var(--muted)">${c.area}</span></td><td>${bills.length}</td><td style="font-family:var(--mono)">Rs.${fmt(total)}</td><td style="font-family:var(--mono)">Rs.${fmt(cash2)}</td><td style="font-family:var(--mono)">Rs.${fmt(cred)}</td><td style="font-family:var(--mono);color:${bal>0?'var(--r600)':'var(--g800)'};font-weight:600">Rs.${fmt(bal)}</td></tr>`;
+  }).join('');
+}
+
+// ===== CREDITS =====
+function renderCredits(){
+  const cc=db.customers.map(c=>{
+    const bills=db.bills.filter(b=>b.customer===c.id&&b.balance>0);
+    const bal=bills.reduce((a,b)=>a+b.balance,0);
+    const last=[...bills].sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    return{...c,bal,cnt:bills.length,lastDate:last?.date};
+  }).filter(c=>c.bal>0);
+  document.getElementById('cred-body').innerHTML=cc.map(c=>`<tr><td><strong>${c.name}</strong></td><td>${c.phone}</td><td style="font-family:var(--mono);font-weight:700;color:var(--r600)">Rs.${fmt(c.bal)}</td><td>${c.cnt}</td><td>${c.lastDate||'-'}</td><td><span class="badge badge-red">ණය</span></td><td><button class="btn btn-primary btn-sm" onclick="payCreditOpen('${c.id}',${c.bal})">ගෙවීම</button></td></tr>`).join('')||'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--g800)">ණය නැහැ! ✓</td></tr>';
+}
+
+function payCreditOpen(custId,bal){
+  curCreditCust=custId;
+  document.getElementById('pc-info').textContent='ඉතිරි ණය: Rs.'+fmt(bal);
+  document.getElementById('pc-amt').value='';
+  document.getElementById('modal-paycredit').classList.add('open');
+}
+
+function confirmPay(){
+  const amt=parseFloat(document.getElementById('pc-amt').value)||0;
+  if(amt<=0){alert('මුදල ඇතුළු කරන්න');return;}
+  let rem=amt;
+  db.bills.filter(b=>b.customer===curCreditCust&&b.balance>0)
+    .sort((a,b)=>new Date(a.date)-new Date(b.date))
+    .forEach(b=>{const p=Math.min(b.balance,rem);b.balance-=p;b.paid+=p;rem-=p;if(b.balance===0)b.status='paid';});
+  saveDB();renderCredits();closeModal('modal-paycredit');notify('ගෙවීම සාර්ථකයි!');
+}
+
+// ===== PDF DOWNLOADS =====
+function downloadInventoryPDF(){
+  const totalCost=db.inventory.reduce((a,i)=>a+i.stock*(i.cost||0),0);
+  const totalSell=db.inventory.reduce((a,i)=>a+i.stock*(i.sell||0),0);
+  const profit=totalSell-totalCost;
+
+  // FIFO grouping
+  const nameGroups={};
+  db.inventory.forEach(i=>{if(!nameGroups[i.name])nameGroups[i.name]=[];nameGroups[i.name].push(i.id);});
+
+  const todayStr=today();
+  const today3mo=new Date();today3mo.setMonth(today3mo.getMonth()+3);
+
+  const rows=db.inventory.map(i=>{
+    const isExpired=i.expiry&&i.expiry<todayStr;
+    const isExpiringSoon=i.expiry&&!isExpired&&new Date(i.expiry)<=today3mo;
+    const isLow=i.stock<=i.min;
+    const batchIds=nameGroups[i.name]||[];
+    const isOldest=batchIds.length>1&&batchIds[0]===i.id;
+    const batchNum=batchIds.indexOf(i.id)+1;
+    const stockCost=i.stock*(i.cost||0);
+    const margin=i.cost>0?Math.round((i.sell-i.cost)/i.cost*100):0;
+    const bg=isExpired?'#FEE2E2':isOldest?'#FFF3CD':isExpiringSoon?'#FEF9C3':isLow?'#FFF7E8':'';
+    const batchBadge=batchIds.length>1?(isOldest?'<span style="background:#F59E0B;color:#fff;padding:1px 4px;border-radius:3px;font-size:9px">FIRST</span>':'<span style="background:#6B7280;color:#fff;padding:1px 4px;border-radius:3px;font-size:9px">Batch '+batchNum+'</span>'):'';
+    const statusBadge=isExpired?'<span style="color:#DC2626;font-weight:bold">Expired</span>':isLow?'<span style="color:#DC2626;font-weight:bold">Low</span>':'OK';
+    return`<tr style="background:${bg}">
+      <td>${batchBadge} <strong>${i.name}</strong></td>
+      <td>${i.cat}</td>
+      <td style="text-align:center"><strong>${i.stock}</strong> ${i.unit||''}</td>
+      <td style="text-align:right">Rs.${fmt(i.cost||0)}</td>
+      <td style="text-align:right">Rs.${fmt(i.label||0)}</td>
+      <td style="text-align:right"><strong>Rs.${fmt(i.sell)}</strong></td>
+      <td style="text-align:right">Rs.${fmt(stockCost)}</td>
+      <td style="text-align:center">${margin}%</td>
+      <td style="text-align:center">${i.expiry||'-'}</td>
+      <td style="text-align:center">${statusBadge}</td>
+    </tr>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;700&family=Inter:wght@400;600;700&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Noto Sans Sinhala','Iskoola Pota','UN-Gannoruwa','Sinhala MN','Inter',Arial,sans-serif;font-size:11px;color:#1a1a1a;padding:16px}
+    /* Force Sinhala rendering */
+    td,th,div,span{font-family:inherit}
+    h1{font-size:18px;color:#0F6E56;margin-bottom:4px}
+    .sub{font-size:11px;color:#666;margin-bottom:12px}
+    .summary{display:flex;gap:20px;background:#F0F7F4;padding:10px 14px;border-radius:8px;margin-bottom:14px}
+    .summary div{flex:1;text-align:center}
+    .summary .val{font-size:14px;font-weight:700;color:#0F6E56}
+    .summary .lbl{font-size:10px;color:#666}
+    table{width:100%;border-collapse:collapse}
+    th{background:#0F6E56;color:#fff;padding:6px 8px;text-align:left;font-size:10px}
+    td{padding:5px 8px;border-bottom:1px solid #e5e7eb;font-size:10px}
+    .legend{margin-top:10px;font-size:9px;color:#666;display:flex;gap:16px}
+    .legend span{display:flex;align-items:center;gap:4px}
+    .dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+    @media print{body{padding:8px}.no-print{display:none}}
+  </style></head><body>
+  <h1>🌿 Lanka Stores - Inventory Report</h1>
+  <div class="sub">Date: ${todayStr} | Total Items: ${db.inventory.length}</div>
+  <div class="summary">
+    <div><div class="val">Rs.${fmt(totalCost)}</div><div class="lbl">Stock Value (Cost)</div></div>
+    <div><div class="val">Rs.${fmt(totalSell)}</div><div class="lbl">Stock Value (Sell)</div></div>
+    <div><div class="val" style="color:#1D4ED8">Rs.${fmt(profit)}</div><div class="lbl">Expected Profit</div></div>
+    <div><div class="val">${db.inventory.length}</div><div class="lbl">Total Items</div></div>
+  </div>
+  <table>
+    <thead><tr>
+      <th>Item / භාණ්ඩය</th><th>Category</th><th>Stock</th>
+      <th>Cost</th><th>Label</th><th>Sell</th>
+      <th>Stock Value</th><th>Margin</th><th>Expiry</th><th>Status</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr style="background:#F0F7F4;font-weight:700">
+      <td colspan="6">TOTAL</td>
+      <td style="text-align:right">Rs.${fmt(totalCost)}</td>
+      <td colspan="3"></td>
+    </tr></tfoot>
+  </table>
+  <div class="legend">
+    <span><span class="dot" style="background:#FFF3CD;border:1px solid #F59E0B"></span> FIFO - Sell First (Oldest Batch)</span>
+    <span><span class="dot" style="background:#FEE2E2;border:1px solid #DC2626"></span> Expired</span>
+    <span><span class="dot" style="background:#FFF7E8;border:1px solid #F59E0B"></span> Low Stock</span>
+  </div>
+  <script>
+    // Wait for Sinhala fonts to fully load before printing
+    // Load fonts then print
+    Promise.all([
+      document.fonts.load('400 12px "Noto Sans Sinhala"'),
+      document.fonts.load('700 12px "Noto Sans Sinhala"'),
+      new Promise(r=>setTimeout(r,2500))
+    ]).then(()=>window.print());
+  <\/script>
+  </body></html>`;
+
+  const w=window.open('','_blank','width=1000,height=700');
+  w.document.write(html);
+  w.document.close();
+  notify('Print dialog open වෙනවා - "Save as PDF" select කරන්න!');
+}
+
+function downloadSalesPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  doc.setFontSize(16);doc.text('Agro Shop - Sales Report',14,18);
+  doc.setFontSize(10);doc.text('Date: '+today(),14,26);
+  const rows=[...db.bills].sort((a,b)=>b.num-a.num).map(b=>{
+    const c=db.customers.find(x=>x.id===b.customer);
+    return['#'+b.num,c?c.name:'?',b.date,b.payment,'Rs.'+fmt(b.subtotal),'Rs.'+fmt(b.discount),'Rs.'+fmt(b.total),b.status];
+  });
+  const totRev=db.bills.reduce((a,b)=>a+b.total,0);
+  doc.autoTable({startY:32,head:[['Bill#','Customer','Date','Payment','Subtotal','Discount','Total','Status']],body:rows,styles:{fontSize:9},headStyles:{fillColor:[15,110,86]},foot:[['','','','','','Total','Rs.'+fmt(totRev),'']],footStyles:{fillColor:[225,245,238],textColor:[15,110,86],fontStyle:'bold'}});
+  doc.save('sales_'+today()+'.pdf');
+  notify('Sales PDF downloaded!');
+}
+
+function downloadPLpdf(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  doc.setFontSize(16);doc.text('Agro Shop - Profit & Loss Report',14,18);
+  doc.setFontSize(10);doc.text('Date: '+today(),14,26);
+  const rows=db.bills.map(b=>{
+    const c=db.customers.find(x=>x.id===b.customer);
+    const cost=b.items.reduce((s,it)=>{const inv=db.inventory.find(i=>i.id===it.inv);return s+(inv?(inv.cost||0)*it.qty:0);},0);
+    const gp=b.total-cost;
+    return['#'+b.num,c?c.name:'?',b.date,'Rs.'+fmt(b.total),'Rs.'+fmt(cost),'Rs.'+fmt(b.discount),(gp>=0?'Rs.':'- Rs.')+fmt(Math.abs(gp))];
+  });
+  const totRev=db.bills.reduce((a,b)=>a+b.total,0);
+  const totCost=db.bills.reduce((a,bill)=>a+bill.items.reduce((s,it)=>{const inv=db.inventory.find(i=>i.id===it.inv);return s+(inv?(inv.cost||0)*it.qty:0);},0),0);
+  doc.autoTable({startY:32,head:[['Bill#','Customer','Date','Revenue','Cost','Discount','Gross Profit']],body:rows,styles:{fontSize:9},headStyles:{fillColor:[15,110,86]},foot:[['','','','Rs.'+fmt(totRev),'Rs.'+fmt(totCost),'','Rs.'+fmt(totRev-totCost)]],footStyles:{fillColor:[225,245,238],textColor:[15,110,86],fontStyle:'bold'}});
+  doc.save('profit_loss_'+today()+'.pdf');
+  notify('P&L PDF downloaded!');
+}
+
+// ===== FIREBASE (REST API - no external SDK needed) =====
+let fbCfg=null;
+let fbEnabled=false;
+let fbPollInterval=null;
+
+function setFBStatus(connected,msg){
+  document.getElementById('fb-dot').style.background=connected?'#4ade80':connected===null?'#f59e0b':'#888';
+  document.getElementById('fb-label').textContent=msg;
+}
+
+function parseFirebaseConfig(raw){
+  // Step 1: remove all control characters and normalize whitespace
+  raw=raw.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,'');
+  // Step 2: extract just the { ... } block
+  const braceStart=raw.indexOf('{');
+  const braceEnd=raw.lastIndexOf('}');
+  if(braceStart===-1||braceEnd===-1)throw new Error('{ } block නැහැ');
+  let obj=raw.substring(braceStart,braceEnd+1);
+  // Step 3: remove JS comments
+  obj=obj.replace(/\/\/[^\n]*/g,'');
+  // Step 4: join broken lines inside string values
+  obj=obj.replace(/"([^"]*?)\n\s*([^"]*?)"/g,(m,a,b)=>'"'+a+b+'"');
+  // Step 5: remove trailing commas
+  obj=obj.replace(/,\s*([}\]])/g,'$1');
+  // Step 6: quote unquoted keys
+  obj=obj.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g,'$1"$2":');
+  // Step 7: replace single quotes with double quotes for values
+  obj=obj.replace(/:\s*'([^']*)'/g,':"$1"');
+  // Step 8: try parse - if fail, try manual extract
+  try{
+    return JSON.parse(obj);
+  }catch(e){
+    // Manual extraction fallback
+    const cfg={};
+    const pattern=/["']?([a-zA-Z]+)["']?\s*:\s*["']([^"'\n]+)["']/g;
+    let match;
+    while((match=pattern.exec(raw))!==null){cfg[match[1]]=match[2];}
+    if(!cfg.apiKey&&!cfg.projectId)throw new Error('Config parse කරන්න බැරි: '+e.message);
+    return cfg;
+  }
+}
+
+function showFBResult(ok,msg){
+  const res=document.getElementById('fb-test-result');
+  res.style.display='block';
+  res.style.background=ok?'var(--g50)':'var(--r100)';
+  res.style.color=ok?'var(--g900)':'var(--r600)';
+  res.textContent=ok?'✅ '+msg:'❌ '+msg;
+}
+
+function saveFBConfig(){
+  const raw=document.getElementById('fb-config-input').value.trim();
+  if(!raw){showFBResult(false,'Config paste කරන්න');return;}
+  try{
+    const cfg=parseFirebaseConfig(raw);
+    if(!cfg.apiKey)throw new Error('apiKey නැහැ');
+    if(!cfg.projectId)throw new Error('projectId නැහැ');
+    localStorage.setItem('fb_config',JSON.stringify(cfg));
+    closeModal('modal-firebase');
+    connectFirebase(cfg);
+  }catch(e){
+    showFBResult(false,'Parse error: '+e.message+' — Firebase console එකෙන් copy කළ config paste කරන්න');
+  }
+}
+
+function testFBConnection(){
+  const raw=document.getElementById('fb-config-input').value.trim();
+  if(!raw){showFBResult(false,'Config paste කරන්න');return;}
+  try{
+    const cfg=parseFirebaseConfig(raw);
+    if(!cfg.apiKey)throw new Error('apiKey නැහැ');
+    if(!cfg.projectId)throw new Error('projectId නැහැ');
+    showFBResult(true,'Config OK! Project: '+cfg.projectId+' — "Firebase Connect" click කරන්න');
+  }catch(e){
+    showFBResult(false,'Error: '+e.message);
+  }
+}
+
+async function connectFirebase(cfg){
+  fbCfg=cfg;
+  setFBStatus(null,'Connecting...');
+  const url=`https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/(default)/documents/meta?key=${cfg.apiKey}`;
+  try{
+    const r=await fetch(url);
+    if(r.status===200||r.status===404){
+      fbEnabled=true;
+      setFBStatus(true,'Firebase ✓ Sync');
+      notify('Firebase connected! Data sync වෙනවා.');
+      await fbPushAll();
+      startFBPoll();
+    } else if(r.status===403){
+      setFBStatus(false,'FB: Permission denied');
+      notify('Firebase error: Firestore rules check කරන්න.');
+    } else {
+      throw new Error('Status '+r.status);
+    }
+  }catch(e){
+    fbEnabled=false;
+    setFBStatus(false,'FB Error');
+    notify('Firebase connect error: '+e.message);
+  }
+}
+
+// Firestore REST helpers
+async function fbSet(collection,docId,data){
+  if(!fbEnabled||!fbCfg)return;
+  const url=`https://firestore.googleapis.com/v1/projects/${fbCfg.projectId}/databases/(default)/documents/${collection}/${docId}?key=${fbCfg.apiKey}`;
+  const fields={};
+  Object.entries(data).forEach(([k,v])=>{fields[k]=toFSValue(v);});
+  try{
+    await fetch(url,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields})});
+  }catch(e){console.error('fbSet error:',e);}
+}
+
+async function fbDelete(collection,docId){
+  if(!fbEnabled||!fbCfg)return;
+  const url=`https://firestore.googleapis.com/v1/projects/${fbCfg.projectId}/databases/(default)/documents/${collection}/${docId}?key=${fbCfg.apiKey}`;
+  try{await fetch(url,{method:'DELETE'});}catch(e){console.error('fbDelete error:',e);}
+}
+
+async function fbGetAll(collection){
+  if(!fbCfg)return[];
+  const url=`https://firestore.googleapis.com/v1/projects/${fbCfg.projectId}/databases/(default)/documents/${collection}?key=${fbCfg.apiKey}&pageSize=500`;
+  try{
+    const r=await fetch(url);
+    if(!r.ok)return[];
+    const d=await r.json();
+    if(!d.documents)return[];
+    return d.documents.map(doc=>{
+      const obj={};
+      Object.entries(doc.fields||{}).forEach(([k,v])=>{obj[k]=fromFSValue(v);});
+      return obj;
+    });
+  }catch(e){console.error('fbGetAll error:',e);return[];}
+}
+
+function toFSValue(v){
+  if(v===null||v===undefined)return{nullValue:null};
+  if(typeof v==='boolean')return{booleanValue:v};
+  if(typeof v==='number')return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
+  if(typeof v==='string')return{stringValue:v};
+  if(Array.isArray(v))return{arrayValue:{values:v.map(toFSValue)}};
+  if(typeof v==='object')return{mapValue:{fields:Object.fromEntries(Object.entries(v).map(([k,vv])=>[k,toFSValue(vv)]))}};
+  return{stringValue:String(v)};
+}
+
+function fromFSValue(v){
+  if('nullValue'in v)return null;
+  if('booleanValue'in v)return v.booleanValue;
+  if('integerValue'in v)return parseInt(v.integerValue);
+  if('doubleValue'in v)return v.doubleValue;
+  if('stringValue'in v)return v.stringValue;
+  if('arrayValue'in v)return(v.arrayValue.values||[]).map(fromFSValue);
+  if('mapValue'in v){const o={};Object.entries(v.mapValue.fields||{}).forEach(([k,vv])=>{o[k]=fromFSValue(vv);});return o;}
+  return null;
+}
+
+async function fbPushAll(){
+  const tables=['inventory','customers','suppliers','bills','returns','purchaseOrders'];
+  for(const t of tables){
+    if(db[t])for(const item of db[t])await fbSet(t,item.id,item);
+  }
+  await fbSet('meta','counters',{billCounter:db.billCounter,returnCounter:db.returnCounter||1,poCounter:db.poCounter||1});
+}
+
+async function fbWipeAll(){
+  if(!fbEnabled||!fbCfg)return;
+  const tables=['inventory','customers','suppliers','bills','returns','purchaseOrders'];
+  for(const t of tables){
+    const url=`https://firestore.googleapis.com/v1/projects/${fbCfg.projectId}/databases/(default)/documents/${t}?key=${fbCfg.apiKey}&pageSize=500`;
+    try{
+      const r=await fetch(url);
+      if(!r.ok)continue;
+      const d=await r.json();
+      if(!d.documents)continue;
+      for(const doc of d.documents){
+        const docId=doc.name.split('/').pop();
+        await fbDelete(t,docId);
+      }
+    }catch(e){console.error('fbWipeAll error:',e);}
+  }
+}
+
+async function fbPullAll(){
+  if(!fbEnabled||!fbCfg)return;
+  const tables=['inventory','customers','suppliers','bills','returns','purchaseOrders'];
+  let changed=false;
+  for(const t of tables){
+    const remote=await fbGetAll(t);
+    if(remote.length>0){
+      // MERGE: combine remote + local, remote wins on conflict (same id)
+      const localItems=db[t]||[];
+      const remoteIds=new Set(remote.map(x=>x.id));
+      // Keep local items not yet synced to remote
+      const localOnly=localItems.filter(x=>!remoteIds.has(x.id));
+      db[t]=[...remote,...localOnly];
+      // Push local-only items to Firebase
+      for(const item of localOnly){
+        await fbSaveItem(t,item);
+      }
+      changed=true;
+    }
+    // If remote is empty, keep local data (don't wipe)
+  }
+  const counters=await fbGetAll('meta');
+  const metaDoc=counters.find(x=>x.billCounter);
+  if(metaDoc){
+    if(metaDoc.billCounter>db.billCounter){db.billCounter=metaDoc.billCounter;changed=true;}
+    if(metaDoc.poCounter>=(db.poCounter||1)){db.poCounter=metaDoc.poCounter||1;changed=true;}
+  }
+  if(changed){
+    saveDB();
+    const cur=document.getElementById('page-title').textContent;
+    const pm={
+      'Dashboard':'dashboard','Inventory / Stock':'inventory',
+      'Bills & Invoices':'bills','Returns / ආපසු':'returns',
+      'Customers':'customers','Suppliers':'suppliers',
+      'Reports':'reports','Credit / ණය':'credits',
+      'Profit / Loss':'profitloss','Purchase Orders':'purchaseorders',
+      '⚠ Alerts - Stock & Expiry':'alerts'
+    };
+    if(pm[cur])render(pm[cur]);
+  }
+}
+
+function startFBPoll(){
+  if(fbPollInterval)clearInterval(fbPollInterval);
+  fbPollInterval=setInterval(fbPullAll,30000); // pull every 30s
+  fbPullAll(); // immediate first pull
+}
+
+// saveDB is already defined above - no override needed
+
+async function fbSaveItem(table,item){
+  saveDB();
+  if(fbEnabled)await fbSet(table,item.id,item);
+}
+
+async function del(table,id){
+  if(!confirm('Delete කරන්නද?'))return;
+  db[table]=db[table].filter(x=>x.id!==id);
+  saveDB();
+  if(fbEnabled)await fbDelete(table,id);
+  const pm={'inventory':'inventory','bills':'bills','returns':'returns','customers':'customers','suppliers':'suppliers','purchaseOrders':'purchaseorders'};
+  render(pm[table]||'dashboard');
+  notify('Deleted!');
+}
+
+// ===== PURCHASE ORDERS =====
+function renderPurchaseOrders(){
+  const sm={};db.suppliers.forEach(s=>sm[s.id]=s.name+' ('+s.company+')');
+  const pos=db.purchaseOrders||[];
+  document.getElementById('po-body').innerHTML=[...pos].sort((a,b)=>b.num-a.num).map(po=>`<tr>
+    <td><strong>PO#${po.num}</strong></td>
+    <td>${sm[po.supplier]||'?'}</td>
+    <td>${po.date}</td>
+    <td>${(po.items||[]).length} items</td>
+    <td style="font-family:var(--mono);font-size:12px">
+      <div>Items: Rs.${fmt(po.total-(po.transport||0)-(po.packaging||0))}</div>
+      ${po.transport?`<div style="color:var(--muted)">🚛 Rs.${fmt(po.transport)}</div>`:''}
+      ${po.packaging?`<div style="color:var(--muted)">🛍 Rs.${fmt(po.packaging)}</div>`:''}
+      <div style="font-weight:700;color:var(--b600)">Total: Rs.${fmt(po.total)}</div>
+    </td>
+    <td><span class="badge ${po.status==='received'?'badge-green':po.status==='partial'?'badge-amber':'badge-blue'}">${po.status==='received'?'✓ Received':po.status==='partial'?'Partial':'Ordered'}</span></td>
+    <td style="white-space:nowrap">
+      ${po.status!=='received'?`<button class="btn btn-primary btn-sm" onclick="receiveOrder('${po.id}')">✓ Receive</button>`:''}
+      <button class="btn btn-danger btn-sm" onclick="del('purchaseOrders','${po.id}')">Del</button>
+    </td>
+  </tr>`).join('')||'<tr><td colspan="7" class="empty-state">Purchase Orders නැහැ</td></tr>';
+}
+
+let poRows=[];
+function initPO(){
+  poRows=[{inv:'',qty:1,cost:0,total:0}];
+  document.getElementById('po-date').value=today();
+  renderPORows();
+}
+
+function addPORow(){poRows.push({inv:'',qty:1,cost:0,total:0});renderPORows();}
+function removePORow(i){poRows.splice(i,1);renderPORows();}
+
+function renderPORows(){
+  document.getElementById('po-rows').innerHTML=poRows.map((row,i)=>{
+    const inv=db.inventory.find(x=>x.id===row.inv);
+    const lt=row.qty*(row.cost||0);
+    return`<div style="display:grid;grid-template-columns:2fr 0.55fr 0.8fr 0.8fr 0.8fr 0.8fr auto;gap:5px;align-items:center;margin-bottom:7px;background:var(--n100);padding:8px;border-radius:7px">
+      <div style="position:relative">
+        <input type="text" placeholder="🔍 Item සොයන්න..." id="posearch_${i}"
+          value="${inv?inv.name:''}"
+          oninput="poSearch(${i},this.value)" onclick="poSearch(${i},this.value)"
+          autocomplete="off"
+          style="padding:5px 7px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font);width:100%">
+        <div id="polist_${i}" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:999;background:#fff;border:1px solid var(--green);border-radius:0 0 8px 8px;max-height:150px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.12)"></div>
+      </div>
+      <input type="number" value="${row.qty}" min="1" onchange="poRows[${i}].qty=parseFloat(this.value)||1;calcPOTotal()" placeholder="Qty" style="padding:5px 7px;border:1px solid var(--border);border-radius:6px;font-size:12px;width:100%;text-align:center">
+      <input type="number" value="${row.cost||''}" onchange="poRows[${i}].cost=parseFloat(this.value)||0;calcPOTotal()" placeholder="Cost" style="padding:5px 7px;border:1px solid var(--border);border-radius:6px;font-size:12px;width:100%;font-family:var(--mono)" title="Cost Price per unit">
+      <input type="number" value="${row.sell||inv&&inv.sell||''}" onchange="poRows[${i}].sell=parseFloat(this.value)||0" placeholder="Sell" style="padding:5px 7px;border:1px solid var(--green);border-radius:6px;font-size:12px;width:100%;font-family:var(--mono)" title="Selling Price per unit">
+      <input type="date" value="${row.expiry||''}" onchange="poRows[${i}].expiry=this.value" title="Expiry Date" style="padding:5px 4px;border:1px solid var(--border);border-radius:6px;font-size:11px;width:100%">
+      <div style="font-size:12px;font-family:var(--mono);font-weight:600;color:var(--b600);text-align:right;padding-right:4px">Rs.${fmt(lt)}</div>
+      <button onclick="removePORow(${i})" style="background:none;border:none;color:var(--r600);cursor:pointer;font-size:17px;padding:0 3px">✕</button>
+    </div>`;
+  }).join('');
+  calcPOTotal();
+}
+
+function poSearch(i,q){
+  const list=document.getElementById('polist_'+i);
+  if(!list)return;
+  const items=q?db.inventory.filter(x=>x.name.toLowerCase().includes(q.toLowerCase())):db.inventory;
+  list.style.display='block';
+  list.innerHTML=items.slice(0,15).map(x=>`
+    <div onclick="poSelectItem(${i},'${x.id}')" style="padding:7px 10px;font-size:12px;cursor:pointer;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between"
+      onmouseover="this.style.background='var(--g50)'"
+      onmouseout="this.style.background='#fff'">
+      <span><strong>${x.name}</strong> <span style="color:var(--muted);font-size:10px">[${x.cat}]</span></span>
+      <span style="font-size:11px;color:var(--muted)">Stock:${x.stock} | Cost:Rs.${fmt(x.cost||0)}</span>
+    </div>`).join('')||'<div style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">Item නැහැ - Inventory එකට add කරන්න</div>';
+}
+
+function poSelectItem(i,invId){
+  const inv=db.inventory.find(x=>x.id===invId);
+  if(!inv)return;
+  poRows[i].inv=invId;
+  poRows[i].cost=inv.cost||0;
+  const inp=document.getElementById('posearch_'+i);
+  if(inp)inp.value=inv.name;
+  const list=document.getElementById('polist_'+i);
+  if(list)list.style.display='none';
+  renderPORows();
+}
+
+function pickPOItem(i,invId){
+  const inv=db.inventory.find(x=>x.id===invId);
+  if(inv){poRows[i].inv=invId;poRows[i].cost=inv.cost||0;}
+  renderPORows();
+}
+
+function updPORow(i){poRows[i].total=poRows[i].qty*(poRows[i].cost||0);renderPORows();}
+
+function calcPOTotal(){
+  const itemsTotal=poRows.reduce((a,r)=>a+r.qty*(r.cost||0),0);
+  const transport=parseFloat(document.getElementById('po-transport')?.value)||0;
+  const packaging=parseFloat(document.getElementById('po-packaging')?.value)||0;
+  const grandTotal=itemsTotal+transport+packaging;
+  const el=id=>document.getElementById(id);
+  if(el('po-items-total'))el('po-items-total').textContent='Rs.'+fmt(itemsTotal);
+  if(el('po-transport-display'))el('po-transport-display').textContent='Rs.'+fmt(transport);
+  if(el('po-packaging-display'))el('po-packaging-display').textContent='Rs.'+fmt(packaging);
+  if(el('po-total-display'))el('po-total-display').textContent='Rs.'+fmt(grandTotal);
+}
+
+async function savePO(){
+  const supId=document.getElementById('po-supplier').value;
+  if(!supId){alert('Supplier select කරන්න');return;}
+  const valid=poRows.filter(r=>r.inv&&r.qty>0);
+  if(!valid.length){alert('Item add කරන්න');return;}
+
+  const transport=parseFloat(document.getElementById('po-transport')?.value)||0;
+  const packaging=parseFloat(document.getElementById('po-packaging')?.value)||0;
+  const itemsTotal=valid.reduce((a,r)=>a+r.qty*(r.cost||0),0);
+  const extraCost=transport+packaging;
+  const grandTotal=itemsTotal+extraCost;
+
+  // Distribute transport+packaging proportionally to each item's cost
+  const itemsWithAdjCost=valid.map(r=>{
+    const itemTotal=r.qty*(r.cost||0);
+    const proportion=itemsTotal>0?itemTotal/itemsTotal:1/valid.length;
+    const extraPerUnit=r.qty>0?(extraCost*proportion)/r.qty:0;
+    const adjCost=Math.round((r.cost||0)+extraPerUnit);
+    return{...r, adjCost};
+  });
+
+  if(!db.poCounter)db.poCounter=1;
+  const directReceive=document.getElementById('po-direct-receive')?.checked||false;
+
+  const po={
+    id:uid(),num:db.poCounter++,supplier:supId,
+    date:document.getElementById('po-date').value,
+    notes:document.getElementById('po-notes').value,
+    transport,packaging,
+    items:itemsWithAdjCost.map(r=>({
+      inv:r.inv,qty:r.qty,
+      cost:r.cost,           // original cost
+      adjCost:r.adjCost,     // cost + transport/packaging share
+      sell:r.sell||0,
+      expiry:r.expiry||'',
+      total:r.qty*r.adjCost
+    })),
+    total:Math.round(grandTotal),
+    status:directReceive?'received':'ordered'
+  };
+
+  db.purchaseOrders.push(po);
+
+  if(directReceive){
+    po.receivedDate=today();
+    po.items.forEach(item=>{
+      const inv=db.inventory.find(i=>i.id===item.inv);
+      if(inv){
+        inv.stock+=item.qty;
+        inv.cost=item.adjCost;      // use adjusted cost (with transport)
+        if(item.sell>0)inv.sell=item.sell;  // update sell price if provided
+        if(item.expiry)inv.expiry=item.expiry;
+        fbSaveItem('inventory',inv);
+      }
+    });
+    saveDB();
+    notify('PO#'+po.num+' - Inventory updated! Transport Rs.'+fmt(transport)+' proportionally added to costs ✓');
+  } else {
+    saveDB();
+    notify('PO#'+po.num+' created! Received කළාම inventory update වෙනවා.');
+  }
+
+  await fbSaveItem('purchaseOrders',po);
+  if(fbEnabled)await fbSet('meta','counters',{billCounter:db.billCounter,returnCounter:db.returnCounter||1,poCounter:db.poCounter});
+  renderPurchaseOrders();closeModal('modal-po');
+
+  // Reset fields
+  if(document.getElementById('po-direct-receive'))document.getElementById('po-direct-receive').checked=true;
+  if(document.getElementById('po-transport'))document.getElementById('po-transport').value='0';
+  if(document.getElementById('po-packaging'))document.getElementById('po-packaging').value='0';
+}
+
+async function receiveOrder(poId){
+  const po=db.purchaseOrders.find(x=>x.id===poId);if(!po)return;
+  if(!confirm('PO#'+po.num+' received ලෙස mark කරන්නද? Stock update වෙනවා.'))return;
+  po.items.forEach(item=>{
+    const inv=db.inventory.find(i=>i.id===item.inv);
+    if(inv){
+      inv.stock+=item.qty;
+      inv.cost=item.adjCost||item.cost; // use adjusted cost (with transport/packaging)
+      if(item.sell&&item.sell>0)inv.sell=item.sell; // update sell price if set
+      if(item.expiry)inv.expiry=item.expiry;
+    }
+  });
+  po.status='received';po.receivedDate=today();
+  for(const item of po.items){const inv=db.inventory.find(i=>i.id===item.inv);if(inv)await fbSaveItem('inventory',inv);}
+  await fbSaveItem('purchaseOrders',po);
+  saveDB();
+  renderPurchaseOrders();notify('Stock updated! PO#'+po.num+' received. Transport costs included in cost price ✓');
+}
+
+
+// ===== EXPENSES =====
+async function saveExpense(){
+  const amt=parseFloat(document.getElementById('exp-amount').value)||0;
+  if(!amt){alert('මුදල ඇතුළු කරන්න');return;}
+  if(!db.expenses)db.expenses=[];
+  const exp={id:uid(),cat:document.getElementById('exp-cat').value,
+    desc:document.getElementById('exp-desc').value,
+    amount:amt,date:document.getElementById('exp-date').value,
+    payment:document.getElementById('exp-pay').value};
+  db.expenses.push(exp);
+  await fbSaveItem('expenses',exp);
+  saveDB();renderExpenses();closeModal('modal-expense');
+  notify('Expense save කළා!');
+  document.getElementById('exp-desc').value='';
+  document.getElementById('exp-amount').value='';
+}
+
+function renderExpenses(){
+  if(!db.expenses)db.expenses=[];
+  const now=new Date();const mo=now.getMonth();const yr=now.getFullYear();
+  const startOfWeek=new Date();startOfWeek.setDate(now.getDate()-now.getDay());
+
+  const monthly=db.expenses.filter(e=>{const d=new Date(e.date);return d.getMonth()===mo&&d.getFullYear()===yr;});
+  const weekly=db.expenses.filter(e=>new Date(e.date)>=startOfWeek);
+  const yearly=db.expenses.filter(e=>new Date(e.date).getFullYear()===yr);
+
+  const mTotal=monthly.reduce((a,e)=>a+e.amount,0);
+  const wTotal=weekly.reduce((a,e)=>a+e.amount,0);
+  const yTotal=yearly.reduce((a,e)=>a+e.amount,0);
+
+  // Net profit = revenue - COGS - expenses
+  const mBills=db.bills.filter(b=>{const d=new Date(b.date);return d.getMonth()===mo&&d.getFullYear()===yr;});
+  const mRevenue=mBills.reduce((a,b)=>a+b.total,0);
+  const mCOGS=mBills.reduce((a,bill)=>a+bill.items.reduce((s,it)=>{const inv=db.inventory.find(i=>i.id===it.inv);return s+(inv?(inv.cost||0)*it.qty:0);},0),0);
+  const netProfit=mRevenue-mCOGS-mTotal;
+
+  document.getElementById('exp-monthly').textContent='Rs.'+fmt(mTotal);
+  document.getElementById('exp-weekly').textContent='Rs.'+fmt(wTotal);
+  document.getElementById('exp-yearly').textContent='Rs.'+fmt(yTotal);
+  document.getElementById('exp-netprofit').textContent='Rs.'+fmt(netProfit);
+
+  document.getElementById('exp-body').innerHTML=[...db.expenses].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>`<tr>
+    <td><span class="badge badge-amber">${e.cat}</span></td>
+    <td>${e.desc||'-'}</td>
+    <td style="font-family:var(--mono);font-weight:600;color:var(--r600)">Rs.${fmt(e.amount)}</td>
+    <td>${e.date}</td>
+    <td>${e.payment==='cash'?'Cash':'Bank'}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="del('expenses','${e.id}')">Del</button></td>
+  </tr>`).join('')||'<tr><td colspan="6" class="empty-state">Expenses නැහැ</td></tr>';
+
+  // Category chart
+  const catTotals={};
+  db.expenses.filter(e=>{const d=new Date(e.date);return d.getMonth()===mo&&d.getFullYear()===yr;}).forEach(e=>{catTotals[e.cat]=(catTotals[e.cat]||0)+e.amount;});
+  const cats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const maxC=cats[0]?cats[0][1]:1;
+  const colors=['var(--r600)','var(--e500)','var(--b600)','var(--p600)','var(--g800)'];
+  document.getElementById('exp-chart').innerHTML=cats.map(([cat,amt],i)=>`
+    <div class="cbar-row"><div class="cbar-lbl">${cat}</div>
+    <div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(amt/maxC*100)}%;background:${colors[i%5]}">${fmt(amt)}</div></div>
+    <div class="cbar-val">Rs.${fmt(amt)}</div></div>`).join('')||'<p style="color:var(--muted);font-size:13px">Expenses නැහැ</p>';
+}
+
+function downloadExpPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  doc.setFontSize(16);doc.text('Lanka Stores - Expense Report',14,18);
+  doc.setFontSize(10);doc.text('Date: '+today(),14,26);
+  const rows=[...db.expenses||[]].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>[e.date,e.cat,e.desc||'-','Rs.'+fmt(e.amount),e.payment]);
+  const total=(db.expenses||[]).reduce((a,e)=>a+e.amount,0);
+  doc.autoTable({startY:32,head:[['Date','Category','Description','Amount','Payment']],body:rows,styles:{fontSize:9},headStyles:{fillColor:[15,110,86]},foot:[['','','Total','Rs.'+fmt(total),'']],footStyles:{fillColor:[252,235,235],textColor:[162,45,45],fontStyle:'bold'}});
+  doc.save('expenses_'+today()+'.pdf');
+  notify('Expense PDF downloaded!');
+}
+
+// ===== CASH BOOK =====
+async function saveCashEntry(){
+  const amt=parseFloat(document.getElementById('ce-amount').value)||0;
+  if(!amt){alert('මුදල ඇතුළු කරන්න');return;}
+  if(!db.cashEntries)db.cashEntries=[];
+  const entry={id:uid(),type:document.getElementById('ce-type').value,
+    desc:document.getElementById('ce-desc').value,
+    amount:amt,date:document.getElementById('ce-date').value};
+  db.cashEntries.push(entry);
+  await fbSaveItem('cashEntries',entry);
+  saveDB();renderCashBook();closeModal('modal-cashentry');
+  notify('Cash entry save කළා!');
+}
+
+function renderCashBook(){
+  if(!db.cashEntries)db.cashEntries=[];
+  const filterDate=document.getElementById('cb-date-filter')?.value||today();
+  const entries=[...db.cashEntries].sort((a,b)=>new Date(a.date)-new Date(b.date)||a.id.localeCompare(b.id));
+
+  let balance=0;
+  let totalIn=0,totalOut=0,openingBal=0;
+
+  document.getElementById('cb-body').innerHTML=entries.map(e=>{
+    if(e.type==='opening'){balance=e.amount;openingBal=e.amount;}
+    else if(e.type==='in'){balance+=e.amount;totalIn+=e.amount;}
+    else{balance-=e.amount;totalOut+=e.amount;}
+    const isToday=e.date===filterDate;
+    return`<tr style="${isToday?'background:var(--g100)':''}">
+      <td>${e.date}</td>
+      <td>${e.desc||'-'}</td>
+      <td style="font-family:var(--mono);color:var(--g800)">${e.type==='in'?'Rs.'+fmt(e.amount):e.type==='opening'?'Rs.'+fmt(e.amount)+' (Opening)':'-'}</td>
+      <td style="font-family:var(--mono);color:var(--r600)">${e.type==='out'?'Rs.'+fmt(e.amount):'-'}</td>
+      <td style="font-family:var(--mono);font-weight:600;color:${balance>=0?'var(--b600)':'var(--r600)'}">Rs.${fmt(balance)}</td>
+      <td><span class="badge ${e.type==='in'?'badge-green':e.type==='opening'?'badge-blue':'badge-red'}">${e.type==='in'?'Cash In':e.type==='opening'?'Opening':'Cash Out'}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="del('cashEntries','${e.id}')">Del</button></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="7" class="empty-state">Entries නැහැ</td></tr>';
+
+  document.getElementById('cb-opening').textContent='Rs.'+fmt(openingBal);
+  document.getElementById('cb-in').textContent='Rs.'+fmt(totalIn);
+  document.getElementById('cb-out').textContent='Rs.'+fmt(totalOut);
+  document.getElementById('cb-closing').textContent='Rs.'+fmt(balance);
+}
+
+function downloadCashBookPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  doc.setFontSize(16);doc.text('Lanka Stores - Cash Book',14,18);
+  doc.setFontSize(10);doc.text('Date: '+today(),14,26);
+  let bal=0;
+  const rows=[...db.cashEntries||[]].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>{
+    if(e.type==='opening')bal=e.amount;
+    else if(e.type==='in')bal+=e.amount;
+    else bal-=e.amount;
+    return[e.date,e.desc||'-',e.type==='in'?'Rs.'+fmt(e.amount):'',e.type==='out'?'Rs.'+fmt(e.amount):'','Rs.'+fmt(bal)];
+  });
+  doc.autoTable({startY:32,head:[['Date','Description','Cash In','Cash Out','Balance']],body:rows,styles:{fontSize:9},headStyles:{fillColor:[15,110,86]}});
+  doc.save('cashbook_'+today()+'.pdf');
+  notify('Cash Book PDF downloaded!');
+}
+
+// ===== SEASON PLAN =====
+async function saveSeason(){
+  const name=document.getElementById('sea-name').value;
+  if(!db.seasons)db.seasons=[];
+  const season={id:uid(),name,start:document.getElementById('sea-start').value,
+    end:document.getElementById('sea-end').value,
+    target:parseFloat(document.getElementById('sea-target').value)||0,
+    notes:document.getElementById('sea-notes').value,
+    createdAt:today()};
+  db.seasons.push(season);
+  await fbSaveItem('seasons',season);
+  saveDB();renderSeason();closeModal('modal-season');
+  notify('Season plan save කළා!');
+}
+
+function renderSeason(){
+  if(!db.seasons)db.seasons=[];
+  const cards=document.getElementById('season-cards');
+  cards.innerHTML=db.seasons.map(s=>{
+    const bills=db.bills.filter(b=>b.date>=s.start&&b.date<=s.end);
+    const revenue=bills.reduce((a,b)=>a+b.total,0);
+    const pct=s.target>0?Math.min(Math.round(revenue/s.target*100),100):0;
+    const now=today();
+    const active=now>=s.start&&now<=s.end;
+    return`<div style="background:${active?'var(--g50)':'var(--surface)'};border:1px solid ${active?'var(--g800)':'var(--border)'};border-radius:12px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:15px;font-weight:600">${s.name}</div>
+        <span class="badge ${active?'badge-green':'badge-blue'}">${active?'🟢 Active':'Planned'}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${s.start} → ${s.end}</div>
+      <div style="font-size:13px;margin-bottom:8px">Target: <strong>Rs.${fmt(s.target)}</strong></div>
+      <div style="font-size:13px;color:var(--g800);margin-bottom:10px">Revenue: <strong>Rs.${fmt(revenue)}</strong></div>
+      <div style="background:var(--n100);border-radius:4px;height:10px;overflow:hidden">
+        <div style="width:${pct}%;background:var(--g800);height:100%;border-radius:4px"></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">${pct}% of target</div>
+      ${s.notes?`<div style="font-size:12px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">${s.notes}</div>`:''}
+      <button class="btn btn-danger btn-sm" onclick="del('seasons','${s.id}')" style="margin-top:10px">Delete</button>
+    </div>`;
+  }).join('')||'<p style="color:var(--muted)">Season plans නැහැ</p>';
+
+  // Stock preparation
+  document.getElementById('season-stock-body').innerHTML=db.inventory.map(i=>`<tr>
+    <td><strong>${i.name}</strong></td>
+    <td style="font-family:var(--mono)">${i.stock} ${i.unit}</td>
+    <td style="font-family:var(--mono)">${Math.round((i.sold||0)/6)} ${i.unit}/month</td>
+    <td style="font-family:var(--mono);color:${i.stock<(i.sold||0)/6*3?'var(--r600)':'var(--g800)'}">
+      ${Math.max(0,Math.round((i.sold||0)/6*3-i.stock))} ${i.unit}
+    </td>
+    <td><span class="badge ${i.stock<=(i.sold||0)/12?'badge-red':i.stock<=(i.sold||0)/6?'badge-amber':'badge-green'}">${i.stock<=(i.sold||0)/12?'⚠ Order Now':i.stock<=(i.sold||0)/6?'Soon':'✓ OK'}</span></td>
+  </tr>`).join('');
+}
+
+// ===== COMPETITORS =====
+async function saveCompetitor(){
+  const invId=document.getElementById('comp-item').value;
+  if(!invId){alert('Item select කරන්න');return;}
+  const price=parseFloat(document.getElementById('comp-price').value)||0;
+  if(!db.competitors)db.competitors=[];
+if(!db.extraIncome)db.extraIncome=[];
+  const comp={id:uid(),invId,name:document.getElementById('comp-name').value,
+    price,date:document.getElementById('comp-date').value,
+    notes:document.getElementById('comp-notes').value};
+  db.competitors.push(comp);
+  await fbSaveItem('competitors',comp);
+  saveDB();renderCompetitors();closeModal('modal-competitor');
+  notify('Competitor price save කළා!');
+}
+
+function renderCompetitors(){
+  if(!db.competitors)db.competitors=[];
+if(!db.extraIncome)db.extraIncome=[];
+  document.getElementById('comp-body').innerHTML=[...db.competitors].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(c=>{
+    const inv=db.inventory.find(i=>i.id===c.invId);
+    const myPrice=inv?inv.sell:0;
+    const diff=myPrice-c.price;
+    return`<tr>
+      <td><strong>${inv?inv.name:'?'}</strong></td>
+      <td>${c.name}</td>
+      <td style="font-family:var(--mono)">Rs.${fmt(c.price)}</td>
+      <td style="font-family:var(--mono)">Rs.${fmt(myPrice)}</td>
+      <td style="font-family:var(--mono);font-weight:600;color:${diff>0?'var(--r600)':diff<0?'var(--g800)':'var(--text)'}">
+        ${diff>0?'+':''}Rs.${fmt(Math.abs(diff))} ${diff>0?'(ඔබ වැඩියි)':diff<0?'(ඔබ අඩුයි)':'(සමානයි)'}
+      </td>
+      <td>${c.date}</td>
+      <td style="font-size:12px;color:var(--muted)">${c.notes||'-'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="del('competitors','${c.id}')">Del</button></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="8" class="empty-state">Competitor prices නැහැ</td></tr>';
+
+  // Comparison chart
+  const itemComp={};
+  db.competitors.forEach(c=>{
+    const inv=db.inventory.find(i=>i.id===c.invId);
+    if(!inv)return;
+    if(!itemComp[c.invId])itemComp[c.invId]={name:inv.name,myPrice:inv.sell,compPrices:[]};
+    itemComp[c.invId].compPrices.push({name:c.name,price:c.price});
+  });
+  const items=Object.values(itemComp).slice(0,6);
+  const maxP=Math.max(...items.map(i=>Math.max(i.myPrice,...i.compPrices.map(c=>c.price))),1);
+  document.getElementById('comp-chart').innerHTML=items.map(item=>`
+    <div style="margin-bottom:14px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">${item.name}</div>
+      <div class="cbar-row"><div class="cbar-lbl">ඔබේ Price</div>
+        <div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(item.myPrice/maxP*100)}%;background:var(--g800)">Rs.${fmt(item.myPrice)}</div></div>
+      </div>
+      ${item.compPrices.map(cp=>`<div class="cbar-row"><div class="cbar-lbl">${cp.name}</div>
+        <div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(cp.price/maxP*100)}%;background:var(--red)">Rs.${fmt(cp.price)}</div></div>
+      </div>`).join('')}
+    </div>`).join('')||'<p style="color:var(--muted);font-size:13px">Data නැහැ</p>';
+}
+
+// ===== PROFIT TABLE =====
+
+
+function setRating(r){
+  currentRating=r;
+  document.getElementById('fb-rating').value=r;
+  const stars=document.querySelectorAll('.star-btn');
+  stars.forEach((s,i)=>{ s.style.opacity=i<r?'1':'0.3'; });
+  const labels=['','😞 Poor','😐 Fair','🙂 Good','😊 Very Good','🤩 Excellent'];
+  document.getElementById('rating-label').textContent=labels[r]||'';
+}
+
+async function saveFeedback(){
+  const custId=document.getElementById('fb-cust').value;
+  const invId=document.getElementById('fb-item').value;
+  const rating=parseInt(document.getElementById('fb-rating').value)||0;
+  const comment=document.getElementById('fb-comment').value.trim();
+  if(!custId){alert('Customer select කරන්න');return;}
+  if(!invId){alert('Item select කරන්න');return;}
+  if(!rating){alert('Rating select කරන්න');return;}
+  if(!db.feedbacks)db.feedbacks=[];
+if(!db.expenses)db.expenses=[];
+if(!db.cashEntries)db.cashEntries=[];
+if(!db.seasons)db.seasons=[];
+if(!db.competitors)db.competitors=[];
+if(!db.extraIncome)db.extraIncome=[];
+  const fb={id:uid(),custId,invId,rating,comment,date:document.getElementById('fb-date').value};
+  db.feedbacks.push(fb);
+  await fbSaveItem('feedbacks',fb);
+  saveDB();renderFeedback();closeModal('modal-feedback');
+  notify('Feedback save කළා! ⭐');
+  document.getElementById('fb-comment').value='';
+  currentRating=0;
+}
+
+function renderFeedback(){
+  if(!db.feedbacks)db.feedbacks=[];
+if(!db.expenses)db.expenses=[];
+if(!db.cashEntries)db.cashEntries=[];
+if(!db.seasons)db.seasons=[];
+if(!db.competitors)db.competitors=[];
+if(!db.extraIncome)db.extraIncome=[];
+  const fbs=[...db.feedbacks].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const stars=n=>('⭐').repeat(n)+('☆').repeat(5-n);
+  document.getElementById('feedback-body').innerHTML=fbs.map(f=>{
+    const c=db.customers.find(x=>x.id===f.custId);
+    const inv=db.inventory.find(x=>x.id===f.invId);
+    return`<tr><td><strong>${inv?inv.name:'?'}</strong></td><td>${c?c.name:'?'}</td><td style="font-size:16px">${stars(f.rating)}</td><td style="max-width:200px;font-size:12px">${f.comment||'-'}</td><td>${f.date}</td><td><button class="btn btn-danger btn-sm" onclick="del('feedbacks','${f.id}')">Del</button></td></tr>`;
+  }).join('')||'<tr><td colspan="6" class="empty-state">Feedback නැහැ</td></tr>';
+
+  // Summary by item
+  const itemSummary={};
+  fbs.forEach(f=>{
+    if(!itemSummary[f.invId])itemSummary[f.invId]={total:0,count:0};
+    itemSummary[f.invId].total+=f.rating;
+    itemSummary[f.invId].count++;
+  });
+  const summaryItems=Object.entries(itemSummary).map(([invId,s])=>{
+    const inv=db.inventory.find(x=>x.id===invId);
+    return{name:inv?inv.name:'?',avg:s.total/s.count,count:s.count};
+  }).sort((a,b)=>b.avg-a.avg);
+
+  document.getElementById('feedback-summary').innerHTML=summaryItems.length?summaryItems.map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px;background:var(--n100);border-radius:8px">
+      <div style="flex:1;font-size:13px;font-weight:500">${s.name}</div>
+      <div style="font-size:14px">${'⭐'.repeat(Math.round(s.avg))}${'☆'.repeat(5-Math.round(s.avg))}</div>
+      <div style="font-size:12px;color:var(--muted)">${s.avg.toFixed(1)} (${s.count})</div>
+    </div>`).join(''):'<p style="color:var(--muted);font-size:13px">Feedback නැහැ</p>';
+
+  // Best rated
+  const best=summaryItems.slice(0,5);
+  const maxAvg=5;
+  document.getElementById('feedback-best').innerHTML=best.map(s=>`
+    <div class="cbar-row">
+      <div class="cbar-lbl">${s.name}</div>
+      <div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(s.avg/maxAvg*100)}%;background:var(--amber)">${s.avg.toFixed(1)}⭐</div></div>
+      <div class="cbar-val">${s.count} reviews</div>
+    </div>`).join('')||'<p style="color:var(--muted);font-size:13px">Feedback නැහැ</p>';
+}
+
+function calcSmallPrice(){
+  const sell=parseFloat(document.getElementById('inv-sell').value)||0;
+  const bulkQty=parseFloat(document.getElementById('inv-bulk-qty').value)||0;
+  if(sell>0&&bulkQty>0){
+    const kgPrice=Math.round(sell/bulkQty);
+    // Only auto-fill if empty
+    if(!document.getElementById('inv-small-price').value)
+      document.getElementById('inv-small-price').value=kgPrice;
+    if(!document.getElementById('inv-gram-price').value)
+      document.getElementById('inv-gram-price').value=Math.round(kgPrice/10);
+  }
+}
+
+// ===== ITEM & CUSTOMER SEARCH =====
+function iSearch(i,q){
+  const list=document.getElementById('ilist_'+i);
+  if(!list)return;
+  const items=q?db.inventory.filter(x=>x.name.toLowerCase().includes(q.toLowerCase())||x.cat.toLowerCase().includes(q.toLowerCase())):db.inventory;
+  list.style.display='block';
+  let html=items.slice(0,20).map(x=>`
+    <div onclick="iSelect(${i},'${x.id}')" style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between"
+      onmouseover="this.style.background='var(--g50)'"
+      onmouseout="this.style.background='#fff'">
+      <span><strong>${x.name}</strong> <span style="color:var(--muted);font-size:10px">[${x.cat}]</span></span>
+      <span style="font-size:11px;color:var(--muted)">Stock:${x.stock} | Rs.${fmt(x.sell)}</span>
+    </div>`).join('');
+  if(!items.length){
+    html='<div style="padding:10px;text-align:center;font-size:12px;color:var(--muted)">Item නැහැ</div>';
+  }
+  if(q&&q.trim().length>0){
+    html+=`<div onclick="quickAddItem(${i},'${q.replace(/'/g,"\\'")}')" style="padding:9px 12px;font-size:12px;cursor:pointer;background:var(--amber-light,#FFF7E8);border-top:1.5px dashed var(--amber,#C4622D);color:var(--amber,#C4622D);font-weight:600"
+      onmouseover="this.style.background='#FCEBD1'"
+      onmouseout="this.style.background='var(--amber-light,#FFF7E8)'">
+      ➕ "${q}" - Inventory නැති item (මිල type කරන්න)
+    </div>`;
+  }
+  list.innerHTML=html;
+}
+
+function quickAddItem(i,name){
+  const list=document.getElementById('ilist_'+i);
+  if(list)list.style.display='none';
+  const inp=document.getElementById('isearch_'+i);
+  if(inp)inp.value=name;
+  // Mark this row as a quick/custom item - no inventory link
+  billRows[i].inv='';
+  billRows[i].customName=name;
+  billRows[i].qty=1;
+  billRows[i].sell=0;
+  billRows[i].disc=0;
+  billRows[i].unitType='bulk';
+  renderRows();
+  // Focus the price field for this row right after render
+  setTimeout(()=>{
+    const priceInput=document.querySelector(`#bill-rows .bill-row:nth-child(${i+1}) input[data-role="sell"]`);
+    if(priceInput)priceInput.focus();
+  },50);
+  notify('Item නම දාලා - දැන් මිල ඇතුළු කරන්න 💰');
+}
+
+function iSelect(i,invId){
+  const inv=db.inventory.find(x=>x.id===invId);
+  if(!inv)return;
+  billRows[i].customName=null;
+  const inp=document.getElementById('isearch_'+i);
+  if(inp)inp.value=inv.name;
+  const list=document.getElementById('ilist_'+i);
+  if(list)list.style.display='none';
+  pickItem(i,invId);
+}
+
+function custSearch(q){
+  const list=document.getElementById('cust-list-bill');
+  if(!list)return;
+  const custs=q?db.customers.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.phone.includes(q)||c.area.toLowerCase().includes(q.toLowerCase())||(c.custNo||'').toLowerCase().includes(q.toLowerCase())):db.customers;
+  list.style.display='block';
+  const walkInBtn=`<div onclick="custSelect('walkin','Walk-in Customer')" style="padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--g50)"
+      onmouseover="this.style.background='var(--g100)'"
+      onmouseout="this.style.background='var(--g50)'">
+      <span style="font-size:16px">🚶</span>
+      <span><strong>Walk-in Customer</strong> <span style="font-size:11px;color:var(--muted)">නම නොදා bill දාන්න</span></span>
+    </div>`;
+  list.innerHTML=walkInBtn+custs.map(c=>`
+    <div onclick="custSelect('${c.id}','${c.name}')" style="padding:8px 12px;font-size:13px;cursor:pointer;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between"
+      onmouseover="this.style.background='var(--g50)'"
+      onmouseout="this.style.background='#fff'">
+      <span><span style="font-size:10px;color:var(--muted);font-family:var(--mono)">${c.custNo||'-'}</span> <strong>${c.name}</strong> <span style="font-size:11px;color:var(--muted)">${c.area}</span></span>
+      <span style="font-size:11px;color:var(--muted)">${c.phone}</span>
+    </div>`).join('')||'';
+}
+
+function custSelect(id,name){
+  document.getElementById('bill-cust').value=id;
+  document.getElementById('cust-search-bill').value=name;
+  document.getElementById('cust-list-bill').style.display='none';
+}
+
+// Close all dropdowns on outside click
+document.addEventListener('click',function(e){
+  if(!e.target.id?.startsWith('isearch_')&&!e.target.closest('[id^="ilist_"]')){
+    document.querySelectorAll('[id^="ilist_"]').forEach(el=>el.style.display='none');
+  }
+  if(e.target.id!=='cust-search-bill'&&!e.target.closest('#cust-list-bill')){
+    const cl=document.getElementById('cust-list-bill');
+    if(cl)cl.style.display='none';
+  }
+});
+
+// Reset customer search when bill modal opens - handled in openModal
+
+// ===== EXTRA INCOME =====
+async function saveEI(){
+  const amt=parseFloat(document.getElementById('ei-amount').value)||0;
+  if(!amt){alert('මුදල ඇතුළු කරන්න');return;}
+  if(!db.extraIncome)db.extraIncome=[];
+  const ei={id:uid(),source:document.getElementById('ei-source').value,
+    desc:document.getElementById('ei-desc').value,
+    amount:amt,date:document.getElementById('ei-date').value,
+    recurring:document.getElementById('ei-recurring').value};
+  db.extraIncome.push(ei);
+  await fbSaveItem('extraIncome',ei);
+  saveDB();renderEI();closeModal('modal-extraincome');
+  notify('Extra Income save කළා! 💵');
+  document.getElementById('ei-desc').value='';
+  document.getElementById('ei-amount').value='';
+}
+
+function renderEI(){
+  if(!db.extraIncome)db.extraIncome=[];
+  const now=new Date();const mo=now.getMonth();const yr=now.getFullYear();
+  const monthly=db.extraIncome.filter(e=>{const d=new Date(e.date);return d.getMonth()===mo&&d.getFullYear()===yr;});
+  const yearly=db.extraIncome.filter(e=>new Date(e.date).getFullYear()===yr);
+  const mTotal=monthly.reduce((a,e)=>a+e.amount,0);
+  const yTotal=yearly.reduce((a,e)=>a+e.amount,0);
+  const sources=[...new Set(db.extraIncome.map(e=>e.source))].length;
+
+  // Combined with sales
+  const mBills=db.bills.filter(b=>{const d=new Date(b.date);return d.getMonth()===mo&&d.getFullYear()===yr;});
+  const mSales=mBills.reduce((a,b)=>a+b.total,0);
+
+  document.getElementById('ei-monthly').textContent='Rs.'+fmt(mTotal);
+  document.getElementById('ei-yearly').textContent='Rs.'+fmt(yTotal);
+  document.getElementById('ei-sources').textContent=sources;
+  document.getElementById('ei-combined').textContent='Rs.'+fmt(mSales+mTotal);
+
+  document.getElementById('ei-body').innerHTML=[...db.extraIncome].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>`<tr>
+    <td><span class="badge badge-green">${e.source}</span></td>
+    <td>${e.desc||'-'}</td>
+    <td style="font-family:var(--mono);font-weight:600;color:var(--g800)">Rs.${fmt(e.amount)}</td>
+    <td>${e.date}</td>
+    <td><span class="badge ${e.recurring==='monthly'?'badge-blue':e.recurring==='seasonal'?'badge-amber':'badge-green'}">${e.recurring==='monthly'?'Monthly':e.recurring==='seasonal'?'Seasonal':'One-time'}</span></td>
+    <td><button class="btn btn-danger btn-sm" onclick="del('extraIncome','${e.id}')">Del</button></td>
+  </tr>`).join('')||'<tr><td colspan="6" class="empty-state">Extra income නැහැ</td></tr>';
+
+  // Source chart
+  const srcTotals={};
+  db.extraIncome.forEach(e=>{srcTotals[e.source]=(srcTotals[e.source]||0)+e.amount;});
+  const srcs=Object.entries(srcTotals).sort((a,b)=>b[1]-a[1]);
+  const maxS=srcs[0]?srcs[0][1]:1;
+  const cols=['var(--g800)','var(--b600)','var(--p600)','var(--e500)','var(--r600)'];
+  document.getElementById('ei-chart').innerHTML=srcs.map(([s,amt],i)=>`
+    <div class="cbar-row"><div class="cbar-lbl">${s}</div>
+    <div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(amt/maxS*100)}%;background:${cols[i%5]}">${fmt(amt)}</div></div>
+    <div class="cbar-val">Rs.${fmt(amt)}</div></div>`).join('')||'<p style="color:var(--muted);font-size:13px">Data නැහැ</p>';
+
+  // Compare
+  const compMax=Math.max(mSales,mTotal,1);
+  document.getElementById('ei-compare').innerHTML=`
+    <div class="cbar-row"><div class="cbar-lbl">Sales</div>
+    <div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(mSales/compMax*100)}%;background:var(--g800)">Rs.${fmt(mSales)}</div></div></div>
+    <div class="cbar-row"><div class="cbar-lbl">Extra Income</div>
+    <div class="cbar-track"><div class="cbar-fill" style="width:${Math.round(mTotal/compMax*100)}%;background:var(--blue)">Rs.${fmt(mTotal)}</div></div></div>
+    <div style="margin-top:12px;padding:10px;background:var(--g100);border-radius:8px;font-size:13px;color:var(--g900)">
+      <strong>Total Income = Rs.${fmt(mSales+mTotal)}</strong>
+    </div>`;
+}
+
+function downloadEIPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  doc.setFontSize(16);doc.text('Lanka Stores - Extra Income Report',14,18);
+  doc.setFontSize(10);doc.text('Date: '+today(),14,26);
+  const rows=[...db.extraIncome||[]].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>[e.date,e.source,e.desc||'-','Rs.'+fmt(e.amount),e.recurring]);
+  const total=(db.extraIncome||[]).reduce((a,e)=>a+e.amount,0);
+  doc.autoTable({startY:32,head:[['Date','Source','Description','Amount','Type']],body:rows,styles:{fontSize:9},headStyles:{fillColor:[15,110,86]},foot:[['','','Total','Rs.'+fmt(total),'']],footStyles:{fillColor:[225,245,238],textColor:[15,110,86],fontStyle:'bold'}});
+  doc.save('extra_income_'+today()+'.pdf');
+  notify('Extra Income PDF downloaded!');
+}
+
+// ===== ALERTS PAGE =====
+function renderAlerts(){
+  const todayStr=today();
+  const today3mo=new Date();today3mo.setMonth(today3mo.getMonth()+3);
+
+  const expired=db.inventory.filter(i=>i.expiry&&i.expiry<todayStr);
+  const expiring=db.inventory.filter(i=>i.expiry&&i.expiry>=todayStr&&new Date(i.expiry)<=today3mo);
+  const lowStock=db.inventory.filter(i=>i.stock<=i.min&&i.stock>0);
+  const outOfStock=db.inventory.filter(i=>i.stock<=0);
+
+  document.getElementById('al-expired').textContent=expired.length;
+  document.getElementById('al-expiring').textContent=expiring.length;
+  document.getElementById('al-lowstock').textContent=lowStock.length;
+  document.getElementById('al-outofstock').textContent=outOfStock.length;
+
+  const dayDiff=(d)=>Math.round((new Date(d)-new Date(todayStr))/(1000*60*60*24));
+
+  document.getElementById('al-expired-body').innerHTML=expired.map(i=>`<tr style="background:#FEE2E2">
+    <td><strong>${i.name}</strong></td>
+    <td><span class="badge badge-blue">${i.cat}</span></td>
+    <td style="font-family:var(--mono)">${i.stock} ${i.unit}</td>
+    <td style="font-family:var(--mono);color:var(--r600);font-weight:600">${i.expiry}</td>
+    <td><span class="badge badge-red">${Math.abs(dayDiff(i.expiry))} දින කලින්</span></td>
+  </tr>`).join('')||'<tr><td colspan="5" class="empty-state" style="color:var(--g700)">✓ Expired items නැහැ</td></tr>';
+
+  document.getElementById('al-expiring-body').innerHTML=expiring.map(i=>`<tr style="background:#FEF9C3">
+    <td><strong>${i.name}</strong></td>
+    <td><span class="badge badge-blue">${i.cat}</span></td>
+    <td style="font-family:var(--mono)">${i.stock} ${i.unit}</td>
+    <td style="font-family:var(--mono);color:#854F0B;font-weight:600">${i.expiry}</td>
+    <td><span class="badge badge-amber">${dayDiff(i.expiry)} දින ඇත</span></td>
+  </tr>`).join('')||'<tr><td colspan="5" class="empty-state" style="color:var(--g700)">✓ Expiring soon items නැහැ</td></tr>';
+
+  document.getElementById('al-lowstock-body').innerHTML=[...lowStock,...outOfStock.filter(i=>!lowStock.includes(i))].map(i=>`<tr style="background:${i.stock<=0?'#FEE2E2':'#FFF7E8'}">
+    <td><strong>${i.name}</strong></td>
+    <td><span class="badge badge-blue">${i.cat}</span></td>
+    <td style="font-family:var(--mono);font-weight:600;color:${i.stock<=0?'var(--r600)':'#854F0B'}">${i.stock} ${i.unit}</td>
+    <td style="font-family:var(--mono)">${i.min} ${i.unit}</td>
+    <td><span class="badge ${i.stock<=0?'badge-red':'badge-amber'}">${i.stock<=0?'❌ Out of Stock':'⚠ Order කරන්න'}</span></td>
+  </tr>`).join('')||'<tr><td colspan="5" class="empty-state" style="color:var(--g700)">✓ Low stock items නැහැ</td></tr>';
+}
+
+// ===== INVENTORY SEARCH/FILTER =====
+function filterInvTable(q){
+  const rows=document.querySelectorAll('#inv-body tr');
+  const lower=q.toLowerCase().trim();
+  let shown=0;
+  rows.forEach(row=>{
+    const text=row.textContent.toLowerCase();
+    const match=!lower||text.includes(lower);
+    row.style.display=match?'':'none';
+    if(match)shown++;
+  });
+  const badge=document.getElementById('inv-count-badge');
+  if(badge)badge.textContent=(lower?shown+' found of ':'')+db.inventory.length+' items';
+}
+
+// ===== INIT =====
+loadDB();
+if(!db.purchaseOrders)db.purchaseOrders=[];
+if(!db.feedbacks)db.feedbacks=[];
+if(!db.expenses)db.expenses=[];
+if(!db.cashEntries)db.cashEntries=[];
+if(!db.seasons)db.seasons=[];
+if(!db.competitors)db.competitors=[];
+if(!db.extraIncome)db.extraIncome=[];
+if(!db.poCounter)db.poCounter=1;
+fillSelects();renderDash();
+document.getElementById('cb-date-filter').value=today();
+const n=new Date();document.getElementById('pl-month').value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0');
+// Auto-connect firebase if config saved
+const savedFBConfig=localStorage.getItem('fb_config');
+if(savedFBConfig){
+  try{
+    const cfg=JSON.parse(savedFBConfig);
+    document.getElementById('fb-config-input').value=JSON.stringify(cfg,null,2);
+    connectFirebase(cfg);
+  }catch(e){console.error('Saved FB config error:',e);}
+}
+</script>
+</body>
+</html>
